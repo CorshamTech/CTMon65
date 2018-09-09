@@ -48,5 +48,5 @@ cin		lda	ACIA
 ; ready.
 ;
 cstatus		lda	ACIA
-		and	#TDRE
+		and	#RDRF
 		rts

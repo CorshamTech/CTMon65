@@ -5,8 +5,8 @@
 ; functions like text output, reading a line, etc.
 ;*********************************************************
 ;
-		zpage
-putsp		ds	2
+;		zpage
+;putsp		ds	2
 ;
 		bss
 BUFFER		ds	BUFFER_SIZE
@@ -68,7 +68,9 @@ putsdone	rts
 ; byte at the end and the length in A.  If the length is
 ; zero, return Z set.
 ;
-getline		ldx	#0
+getline
+	if 0
+		ldx	#0
 		beq	getline1
 ;
 ; This outputs a bell.  Used when the user
@@ -99,6 +101,7 @@ getline1	jsr	cin	;get character
 getline3	lda	#0
 		sta	BUFFER,x
 		txa		;will set/clear Z
+	endif
 		rts
 ;
 ;*********************************************************
@@ -128,7 +131,9 @@ ToLowerDone	rts
 ; word in argc, and has a total count in argv.  Yes, I am
 ; a C programmer.
 ;
-parse		ldx	#0
+parse
+	if 0
+		ldx	#0
 		stx	argc	;clear count
 		dex
 ;
@@ -160,6 +165,7 @@ parse3		inx
 		sta	BUFFER,x	;terminate
 		jmp	parse1
 ;
+	endif
 parse2		rts
 ;
 ;*********************************************************

@@ -25,23 +25,65 @@
 ; ASCII constants
 ;
 BELL		equ	$07
+BS		equ	$08
 LF		equ	$0a
 CR		equ	$0d
 ;
+; Max number of bytes per line for hex dump
+;
+BYTESLINE	equ	16
+;
+; These are various buffer sizes
+;
+FILENAME_SIZE	equ	12
+;
+; Intel HEX record types
+;
+DATA_RECORD	equ	$00
+EOF_RECORD	equ	$01
+;
 ; Zero-page data
 ;
-		zpage
+;		zpage
+		bss
 		org	ZERO_PAGE_START
-IRQvec		ds	2
-NMIvec		ds	2
 sptr		ds	2
 INL		ds	1
 INH		ds	1
+putsp		ds	2
 ;
 ; Non zero-page data
 ;
 		bss
 		org	RAM_START
+;
+; The use of memory starting from here will remain
+; constant through different versions of CTMON65.
+;
+IRQvec		ds	2
+NMIvec		ds	2
+;
+; Before a L(oad) command, these are set to $FF.
+; After loading, if they are different, jump to
+; that address.
+;
+AutoRun		ds	2
+;
+; Pointer to the subroutine that gets the next input
+; character.  Used for doing disk/console input.
+;
+inputVector	ds	2
+;
+; Same thing for output.
+;
+outputVector	ds	2
+;
+; Buffer for GETLINE
+;
+buffer		ds	BUFFER_SIZE
+;
+; Anything from here can be moved between versions.
+;
 SaveA		ds	1
 SaveX		ds	1
 SaveY		ds	1
@@ -53,6 +95,13 @@ SAH		ds	1
 EAL		ds	1
 EAH		ds	1
 tempA		ds	1
+filename	ds	FILENAME_SIZE+1
+diskBufOffset	ds	1
+diskBufLength	ds	1
+CHKL		ds	1
+ID		ds	1
+Temp16L		ds	1
+Temp16H		ds	1
 ;
 ; This weird bit of DBs is to allow for the fact that
 ; I'm putting a 4K monitor into the top half of an
@@ -76,6 +125,16 @@ tempA		ds	1
 ;
 COLDvec		jmp	RESET
 WARMvec		jmp	WARM
+;
+; These are the major and minor revision numbers so that
+; code can check to see which CTMON65 version is running.
+;
+CTMON65ver	db	VERSION
+CTMON65rev	db	REVISION
+		db	0
+;
+; Console related functions
+;
 CINvec		jmp	cin
 COUTvec		jmp	cout
 CSTATvec	jmp	cstatus
@@ -83,8 +142,27 @@ PUTSILvec	jmp	putsil
 GETLINEvec	jmp	getline
 CRLFvec		jmp	crlf
 OUTHEXvec	jmp	HexA
-
-
+;
+; Low-level functions to access the SD card system
+;
+	if	SD_ENABLED
+XPARINITvev	jmp	xParInit
+XPARSETWRITEvec	jmp	xParSetWrite
+XPARSETREADvec	jmp	xParSetRead
+XPARWRITEvec	jmp	xParWriteByte
+XPARREADvec	jmp	xParReadByte
+;
+; Higher level SD card functions
+;
+DISKPINGvec	jmp	DiskPing
+DISKDIRvec	jmp	DiskDir
+DISKDIRNEXTVEC	jmp	DiskDirNext
+DISKOPENREADvec	jmp	DiskOpenRead
+DISKOPENWRITvec	jmp	DiskOpenWrite
+DISKREADvec	jmp	DiskRead
+DISKWRITEvec	jmp	DiskWrite
+DISKCLOSEvec	jmp	DiskClose
+	endif	;SD_ENABLED
 ;
 ;---------------------------------------------------------
 ; Cold start entry point
@@ -92,6 +170,7 @@ OUTHEXvec	jmp	HexA
 RESET		ldx	#$ff
 		txs
 		jsr	cinit
+		jsr	xParInit
 ;
 ; Reset the NMI and IRQ vectors
 ;
@@ -109,9 +188,9 @@ RESET		ldx	#$ff
 ;
 		jsr	putsil
 		db	CR,LF,LF,LF,LF
-		db	"CTMON65 rev 0.0"
+		db	"CTMON65 rev 0.1"
 		db	CR,LF
-		db	"06/29/2018 by Bob Applegate K2UT"
+		db	"08/26/2018 by Bob Applegate K2UT"
 		db	", bob@corshamtech.com"
 		db	CR,LF,LF,0
 ;
@@ -122,12 +201,16 @@ RESET		ldx	#$ff
 ;
 WARM		ldx	#$ff
 		txs
-
-
+;
+; Reset input/output to the console
+;
+		jsr	setOutputConsole
+		jsr	setInputConsole
 ;
 ; Prompt the user and get a line of text
 ;
 prompt		jsr	putsil
+		db	CR,LF
 		db	"CTMON65> "
 		db	0
 prompt2		jsr	cin
@@ -174,32 +257,46 @@ commandTable	db	'?'
 		dw	showHelp
 		dw	quesDesc
 ;
-;		db	'D'
-;		dw	doDiskDir
-;		dw	dDesc
+		db	'C'
+		dw	doContinue
+		dw	cDesc
 ;
-;		db	'E'	;edit memory
-;		dw	editMemory
-;		dw	eDesc
+		db	'D'
+		dw	doDiskDir
+		dw	dDesc
 ;
-;		db	'H'	;hex dump
-;		dw	hexDump
-;		dw	hDesc
+		db	'E'	;edit memory
+		dw	editMemory
+		dw	eDesc
+;
+		db	'H'	;hex dump
+		dw	hexDump
+		dw	hDesc
 ;
 		db	'J'	;jump to address
 		dw	jumpAddress
 		dw	jDesc
 ;
-;		db	'L'	;load Intel HEX file
-;		dw	loadHex
-;		dw	lDesc
+		db	'L'	;load Intel HEX file
+		dw	loadHex
+		dw	lDesc
 ;
-
-
 		db	'M'	;perform memory test
 		dw	memTest
 		dw	mDesc
-
+;
+		db	'P'	;ping remote disk
+		dw	pingDisk
+		dw	pDesc
+;
+		db	'S'	;save memory as hex file
+		dw	saveHex
+		dw	sDesc
+;
+		db	'T'	;type a file on SD
+		dw	typeFile
+		dw	tDesc
+;
 		db	0	;marks end of table
 ;
 ;=====================================================
@@ -209,18 +306,16 @@ commandTable	db	'?'
 ; the amount of space this table consumes.
 ;
 quesDesc	db	"? ........... Show this help",0
-;dDesc		db	"D ........... Disk directory",0
-;eDesc		db	"E xxxx ...... Edit memory",0
-;hDesc		db	"H xxxx xxxx . Hex dump memory",0
+cDesc		db	"C ........... Continue execution",0
+dDesc		db	"D ........... Disk directory",0
+eDesc		db	"E xxxx ...... Edit memory",0
+hDesc		db	"H xxxx xxxx . Hex dump memory",0
 jDesc		db	"J xxxx ...... Jump to address",0
-;lDesc		db	"L ........... Load HEX file",0
+lDesc		db	"L ........... Load HEX file",0
 mDesc		db	"M xxxx xxxx . Memory test",0
-;pDesc		db	"P ........... Ping disk controller",0
-;sDesc		db	"S xxxx xxxx . Save memory to file",0
-;tDesc		db	"T ........... Type disk file",0
-;bangDesc	db	"! ........... Do a cold start",0
-
-
+pDesc		db	"P ........... Ping disk controller",0
+sDesc		db	"S xxxx xxxx . Save memory to file",0
+tDesc		db	"T ........... Type disk file",0
 ;
 ;=====================================================
 ; This subroutine will search for a command in a table
@@ -261,52 +356,545 @@ cmdMatch	iny
 ;
 cmdNotFound	rts
 ;
-
-;
 ;=====================================================
 ; Handles the command to prompt for an address and then
 ; jump to it.
 ;
-jumpAddress	jsr	space
+jumpAddress	jsr	putsil
+		db	"Jump to ",0
 		jsr	getStartAddr
 		bcs	cmdRet	;branch on bad address
 		jsr	crlf
 		jmp	(SAL)	;else jump to address
 ;
 cmdRet		jmp	prompt
-
-
-
-
 ;
-;*********************************************************
-; Handlers for the interrupts.  Basiclly just jump 
-; through the vectors and hope they are set up properly.
+;=====================================================
+; Do a hex dump of a region of memory.  This code was
+; taken from MICRO issue 5, from an article by
+; J.C. Williams.  I changed it a bit, but it's still
+; basically the same code.
 ;
-HandleNMI	jmp	(NMIvec)
-HandleIRQ	jmp	(IRQvec)
+; Slight bug: the starting address is rounded down to
+; a multiple of 16.  I'll fix it eventually.
 ;
-;*********************************************************
-; Default handler.  Save the state of the machine for
-; debugging.  This is taken from the KIM monitor SAVE
-; routine.
-;
-DefaultNMI
-DefaultIRQ
-		sta	SaveA
-		pla
-		sta	SaveC
-		pla
-		sta	SavePC
-		pla
-		sta	SavePC+1
-		sty	SaveY
-		stx	SaveX
-		tsx
-		stx	SaveSP
-		jsr	DumpRegisters
+hexDump		jsr	putsil
+		db	"Hex dump ",0
+		jsr	getAddrRange
+		bcs	cmdRet
 		jsr	crlf
-		jmp	WARM
+;
+; Move start address to POINT but rounded down to the
+; 16 byte boundary.
+;
+		lda	SAH
+		sta	sptr+1
+		lda	SAL
+		and	#$f0	;force to 16 byte
+		sta	sptr
+;
+; This starts each line.  Set flag to indcate we're
+; doing the hex portion, print address, etc.
+;
+hexdump1	lda	#0	;set flag to hex mode
+		sta	tempA
+		jsr	crlf
+		lda	sptr+1
+		jsr	HexA	;print the address
+		lda	sptr
+		jsr	HexA
+hexdump2	lda	sptr	;push start of line...
+		pha		;...address onto stack
+		lda	sptr+1
+		pha
+		jsr	space2
+		ldx	#BYTESLINE-1	;number of bytes per line
+		jsr	space2	;space before data
+
+hexdump3	ldy	#0	;get next byte...
+		lda	(sptr),y
+		bit	tempA	;hex or ASCII mode?
+		bpl	hexptbt	;branch if hex mode
+;
+; Print char if printable, else print a dot
+;
+		cmp	#' '
+		bcc	hexdot
+		cmp	#'~'
+		bcc	hexpr
+hexdot		lda	#'.'
+hexpr		jsr	cout
+		jmp	hexend
+;
+; Print character as hex.  
+;
+hexptbt 	jsr	HexA	;print as hex
+		jsr	space	;and follow with a space
+;
+; See if we just dumped the last address.  If not, then
+; increment to the next address and continue.
+;
+hexend  	lda	sptr	;compare first
+		cmp	EAL
+		lda	sptr+1
+		sbc	EAH
+;
+; Now increment to the next address
+;
+		php
+		jsr	INCPT
+		plp
+		bcc	hexlntst
+;
+		bit	tempA
+		bmi	hexdone
+		dex
+		bmi	hexdomap
+hexdump5	jsr	space3
+		dex
+		bpl	hexdump5
+hexdomap	dec	tempA
+		pla
+		sta	sptr+1
+		pla
+		sta	sptr
+		jmp     hexdump2
+hexlntst	dex
+		bpl	hexdump3
+		bit	tempA
+		bpl	hexdomap
+		pla
+		pla
+		jmp	hexdump1
+;
+; Clean up the stack and we're done
+;
+hexdone		jsr	crlf
+ret1		jmp	prompt
+;
+;=====================================================
+; Edit memory.  This waits for a starting address to be
+; entered.  It will display the current address and its
+; contents.  Possible user inputs and actions:
+;
+;   Two hex digits will place that value in memory
+;   RETURN moves to next address
+;   BACKSPACE moves back one address
+;
+editMemory	jsr	putsil
+		db	"Edit memory ",0
+		jsr	getStartAddr
+		bcs	ret1
+		lda	SAL	;move address into...
+		sta	sptr	;...POINT
+		lda	SAH
+		sta	sptr+1
+;
+; Display the current location
+;
+editMem1	jsr	crlf
+		lda	sptr+1
+		jsr	HexA
+		lda	sptr
+		jsr	HexA
+		jsr	space
+		ldy	#0
+		lda	(sptr),y	;get byte
+		jsr	HexA	;print it
+		jsr	space
+;
+		jsr	getHex
+		bcs	editMem2	;not hex
+		ldy	#0
+		sta	(sptr),y	;save new value
+;
+; Bump POINT to next location
+;
+editMem3	inc	sptr
+		bne	editMem1
+		inc	sptr+1
+		jmp	editMem1
+;
+; Not hex, so see if another command
+;
+editMem2	cmp	#CR
+		beq	editMem3	;move to next
+		cmp	#BS
+		bne     ret1		;else exit
+;
+; Move back one location
+;
+		sec
+		lda	sptr
+		sbc	#1
+		sta	sptr
+		bcs	editMem1
+		dec	sptr+1
+		jmp	editMem1
+;
+;=====================================================
+; This handles the Load hex command.
+;
+loadHex		jsr	putsil
+		db	CR,LF
+		db	"Enter filename, or Enter to "
+		db	"load from console: ",0
+;
+		jsr	getFileName	;get filename
+		lda	filename	;null?
+		beq	loadHexConsole	;load from console
+;
+; Clear the auto-run vector
+;
+		lda	#$ff
+		sta	AutoRun+1	;only do MSB
+;
+; Open the file
+;
+		ldy	#filename&$ff
+		ldx	#filename/256
+		jsr	DiskOpenRead
+		bcc	loadHexOk	;opened ok
+;
+openfail	jsr	putsil
+		db	CR,LF
+		db	"Failed to open file"
+		db	CR,LF,0
+cmdRet3		jmp	prompt
+;
+loadHexOk	jsr	setInputFile	;redirect input
+		jmp	loadStart
+;
+; They are loading from the console
+;
+loadHexConsole	jsr	putsil
+		db	CR,LF
+		db	"Waiting for file, or ESC to"
+		db	" exit..."
+		db	CR,LF,0
+		jsr	setInputConsole
+;
+; The start of a line.  First character should be a
+; colon, but toss out CRs, LFs, etc.  Anything else
+; causes an abort.
+;
+loadStart	jsr	redirectedGetch	;get start of line
+		cmp	#CR
+		beq	loadStart
+		cmp	#LF
+		beq	loadStart
+		cmp	#':'	;what we expect
+		bne	loadAbort
+;
+; Get the header of the record
+;
+		lda	#0
+		sta	CHKL	;initialize checksum
+;
+		jsr	getHex	;get byte count
+		bcs	loadAbort
+		sta	SaveX	;save byte count
+		jsr	updateCrc
+		jsr	getHex	;get the MSB of offset
+		bcs	loadAbort
+		sta	sptr+1
+		jsr	updateCrc
+		jsr	getHex	;get LSB of offset
+		bcs	loadAbort
+		sta	sptr
+		jsr	updateCrc
+		jsr	getHex	;get the record type
+		bcs	loadAbort
+		jsr	updateCrc
+;
+; Only handle two record types:
+;    00 = data record
+;    01 = end of file record
+;
+		cmp	#DATA_RECORD
+		beq	loadDataRec
+		cmp	#EOF_RECORD
+		beq	loadEof
+;
+; Unknown record type
+;
+loadAbort       jsr	putsil
+		db	CR,LF
+		db	"Aborting"
+		db	CR,LF,0
+loadExit	jsr	setInputConsole
+		jmp	prompt
+;
+; EOF is easy
+;
+loadEof		jsr	getHex	;get checksum
+		jsr	putsil
+		db	CR,LF
+		db	"Success!"
+		db	CR,LF,0
+;
+; If the auto-run vector is no longer $ffff, then jump
+; to whatever it points to.
+;
+		lda	AutoRun+1
+		cmp	#$ff		;unchanged?
+		beq	lExit1
+		jmp	(AutoRun)	;execute!
+;
+lExit1		jmp	loadExit
+;
+; Data records have more work.  After processing the
+; line, print a dot to indicate progress.  This should
+; be re-thought as it could slow down loading a really
+; big file if the console speed is slow.
+;
+loadDataRec	ldx	SaveX	;byte count
+		ldy	#0	;offset
+loadData1	stx	SaveX
+		sty	SaveY
+		jsr	getHex
+		bcs	loadAbort
+		jsr	updateCrc
+		ldy	SaveY
+		ldx	SaveX
+		sta	(sptr),y
+		iny
+		dex
+		bne	loadData1
+;
+; All the bytes were read so get the checksum and see
+; if it agrees.  The checksum is a twos-complement, so
+; just add the checksum into what we've been calculating
+; and if the result is zero then the record is good.
+;
+		jsr	getHex	;get checksum
+		clc
+		adc	CHKL
+		bne	loadAbort	;non-zero is error
+;
+		lda	#'.'	;sanity indicator when
+		jsr	cout	;...loading from file
+		jmp	loadStart
+;
+;=====================================================
+; Handles the command to save a region of memory as a
+; file on the SD.
+;
+saveHex		jsr	getAddrRange	;get range to dump
+		bcs	lExit1	;abort on error
+;
+; Get the filename to save to
+;
+		jsr	putsil
+		db	CR,LF
+		db	"Enter filename, or Enter to "
+		db	"load from console: ",0
+;
+		jsr	getFileName	;get filename
+		lda	filename	;null?
+		beq	saveHexConsole	;dump to console
+;
+; They selected a file, so try to open it.
+;
+		ldx	#filename>>8
+		ldy	#filename&$ff
+		jsr	DiskOpenWrite	;attempt to open file
+		bcc	sopenok		;branch if opened ok
+		jmp	openfail
+;
+sopenok		jsr	setOutputFile
+		jmp	savehex2
+;
+; They are saving to the console.  Set up the output
+; vector and do the job.
+;
+saveHexConsole	jsr	setOutputConsole
+;
+; Compute the number of bytes to dump
+;
+savehex2	sec
+		lda	EAL
+		sbc	SAL
+		sta	Temp16L
+		lda	EAH
+		sbc	SAH
+		sta	Temp16H
+		bcc	SDone	;start > end
+		ora	0
+		bmi	SDone	;more than 32K seems wrong
+;
+; Add one to the count
+;
+		inc	Temp16L
+		bne	slab1
+		inc	Temp16H
+;
+; Move pointer to zero page
+;
+slab1		lda	SAL
+		sta	sptr
+		lda	SAH
+		sta	sptr+1
+;
+; Top of each loop.  Start by seeing if there are any bytes
+; left to dump.
+;
+Sloop1		lda	Temp16H
+		bne	Sgo	;more to do
+		lda	Temp16L
+		bne	Sgo	;more to do
+;
+; At end of the region, so output an end record.  This
+; probably looks like overkill but keep in mind this
+; might be going to a file so we can't use the normal
+; string put functions.
+;
+		lda	#':'
+		jsr	redirectedOutch
+		lda	#0
+		jsr	HexToOutput
+		jsr	HexToOutput
+		jsr	HexToOutput
+		lda	#1
+		jsr	HexToOutput
+		lda	#$ff
+		jsr	HexToOutput
+;
+; If output to file, flush and close the file.
+;
+		lda	filename
+		beq	SDone		;it's going to console
+		jsr	CloseOutFile
+SDone		jmp	prompt		;back to the monitor
+;
+; This dumps the next line.  See how many bytes are left to do
+; and if more than BYTESLINE, then just do BYTESLINE.
+;
+Sgo		lda	Temp16H
+		bne	Sdef	;do default number of bytes
+		lda	Temp16L
+		cmp	#BYTESLINE
+		bcc	Scnt	;more than max per line
+Sdef		lda	#BYTESLINE
+Scnt		sta	tempA	;for decrementing
+		sta	ID	;for subtracting
+;
+; Put out the header
+;
+		lda	#':'
+		jsr	redirectedOutch
+;
+		lda	tempA
+		sta	CHKL	;start checksum
+		jsr	HexToOutput
+;
+		lda	sptr+1	;starting address
+		jsr	updateCrc
+		jsr	HexToOutput
+		lda	sptr
+		jsr	updateCrc
+		jsr	HexToOutput
+;
+		lda	#0	;record type - data
+		jsr	HexToOutput
+;
+; Now print the proper number of bytes
+;
+Sloop2		ldy	#0
+		lda	(sptr),y	;get byte
+		jsr	updateCrc
+		jsr	HexToOutput
+		jsr	INCPT	;increment pointer
+;
+sdec		dec	tempA
+		bne	Sloop2
+;
+; Now print checksum
+;
+		lda	CHKL
+		eor	#$ff	;one's complement
+		clc
+		adc	#1	;two's complement
+		jsr	HexToOutput
+;
+; Output a CR/LF
+;
+		lda	#CR
+		jsr	redirectedOutch
+		lda	#LF
+		jsr	redirectedOutch
+;
+; If saving to disk, output a dot to indicate progress.
+;
+		lda	filename
+		beq	shf2
+;
+		lda	#'.'
+		jsr	cout	;goes to console
+;
+shf2		sec
+		lda	Temp16L
+		sbc	ID
+		sta	Temp16L
+		lda	Temp16H
+		sbc	#0
+		sta	Temp16H
+;
+		jmp	Sloop1
+;
+;=====================================================
+; Get a disk filename.
+;
+getFileName	ldx	#0
+getFilename1	jsr	cin	;get next key
+		cmp	#CR	;end of the input?
+		beq	getFnDone
+		cmp	#BS	;backspace?
+		beq	getFnDel
+		cpx	#FILENAME_SIZE	;check size
+		beq	getFilename1	;at length limit
+		sta	filename,x	;else save it
+		jsr	cout
+		inx
+		bne	getFilename1
+;
+getFnDel	dex
+		bmi	getFnU	;no charac here
+		lda	#BS
+		jsr	cout
+		lda	#' '
+		jsr	cout
+		lda	#BS
+		jsr	cout
+		dex
+getFnU		inx		;can't go past start
+		bpl	getFilename1
+getFnDone       lda	#0	;terminate line
+		sta	filename,x
+		jmp	crlf
+;
+;=====================================================
+; Add the byte in A to the output buffer.  If the
+; buffer is full, flush it to disk.
+;
+putNextFileByte	ldx	diskBufOffset
+		cpx	#BUFFER_SIZE	;buffer full?
+		bne	pNFB		;no
+;
+; The buffer is full, so write it out.
+;
+		pha			;save byte
+		lda	#BUFFER_SIZE
+		ldx	#buffer>>8
+		ldy	#buffer&$ff
+		jsr	DiskWrite
+;
+		ldx	#0		;reset index
+		pla
+pNFB		sta	buffer,x
+		inx
+		stx	diskBufOffset
+		rts
 ;
 ;*********************************************************
 ; Dump the current registers based on values in the Save*
@@ -410,6 +998,24 @@ testbit1	txa
 	endif
 ;
 ;=====================================================
+; This continues executing from the last saved state,
+; such as from a call to DefaultNMI.
+;
+doContinue
+		ldx	SaveSP
+		txs
+		lda	SavePC+1
+		pha
+		lda	SavePC
+		pha
+		lda	SaveC
+		pha
+		ldx	SaveX
+		ldy	SaveY
+		lda	SaveA
+		rti
+;
+;=====================================================
 ; This gets two hex characters and returns the value
 ; in A with carry clear.  If a non-hex digit is
 ; entered, then A contans the offending character and
@@ -433,7 +1039,7 @@ getHex		jsr	getNibble
 ; value from 0-F in A and returns C clear.  If not a
 ; valid hex character, return C set.
 ;
-getNibble	jsr	cin
+getNibble	jsr	redirectedGetch
 		ldx	#nibbleHexEnd-nibbleHex-1
 getNibble1	cmp	nibbleHex,x
 		beq	getNibF	;got match
@@ -480,11 +1086,12 @@ getEndAddr	jsr	getHex
 ;=====================================================
 ; Get an address range and leave them in SAL and EAL.
 ;
-getAddrRange	jsr	space
+getAddrRange	jsr	putsil
+		db	"Start: ",0
 		jsr	getStartAddr
 		bcs	getDone
-		lda	#'-'
-		jsr	cout
+		jsr	putsil
+		db	", End: ",0
 		jsr	getEndAddr
 		rts
 ;
@@ -565,7 +1172,9 @@ PATTERN_9	equ	$ba
 memabort	jsr	cin	;eat pending key
 cmdRet2		jmp	prompt
 ;
-memTest		jsr	getAddrRange	;get range
+memTest		jsr	putsil
+		db	"Memory test ",0
+		jsr	getAddrRange	;get range
 		bcs	cmdRet2		;branch if abort
 ;
 		jsr	putsil
@@ -695,15 +1304,272 @@ memFail		pha		;save pattern for error report
 		jsr	crlf
 cmdRet4		jmp	prompt
 ;
-
-
+;=====================================================
+; Increment sptr
+;
 INCPT		inc	sptr
 		bne	incpt2
 		inc	sptr+1
 incpt2		rts
 ;
+;=====================================================
+; Ping the Arduino disk controller.  This just sends the
+; PING command gets back one character, then returns.
+; Not much of a test but is sufficient to prove the
+; link is working.
+;
+pingDisk	jsr	putsil
+		db	"Ping... ",0
+		jsr	DiskPing
+		jsr	putsil
+		db	"success!"
+		db	CR,LF,0
+doDiskDirEnd	jmp	prompt
+;
+;=====================================================
+; Do a disk directory of the SD card.
+;
+doDiskDir	jsr	putsil
+		db	"Disk Directory..."
+		db	CR,LF,0
+;		jsr	xParInit
+		jsr	DiskDir
+;
+; Get/Display each entry
+;
+doDiskDirLoop   ldx	#filename/256	;pointer to buffer
+		ldy	#filename&$ff
+		stx	INH		;save for puts
+		sty	INL
+		jsr	DiskDirNext	;get next entry
+		bcs	doDiskDirEnd	;carry = end of list
+		jsr	space3
+		jsr	puts		;else print name
+		jsr	crlf
+		jmp	doDiskDirLoop	;do next entry
+;
+;=====================================================
+; Adds the character in A to the CRC.  Preserves A.
+;
+updateCrc	pha
+		clc
+		adc	CHKL
+		sta	CHKL
+		pla
+		rts
+;
+;=====================================================
+; Print character in A as two hex digits to the
+; current output device (console or file).
+;
+HexToOutput	pha		;save return value
+		pha
+		lsr	a	;move top nibble to bottom
+		lsr	a
+		lsr	a
+		lsr	a
+		jsr	hexta	;output nibble
+		pla
+		jsr	hexta
+		pla		;restore
+		rts
+;
+hexta		and	#%0001111
+		cmp	#$0a
+		clc
+		bmi	hexta1
+		adc	#7
+hexta1		adc	#'0'	;then fall into...
+;
+;=====================================================
+; This is a helper function used for redirected I/O.
+; It simply does a jump through the output vector
+; pointer to send the character in A to the proper
+; device.
+;
+redirectedOutch	jmp	(outputVector)
+;
+;=====================================================
+; Set up the output vector to point to the normal
+; console output subroutine.
+;
+setOutputConsole
+		lda	#cout&$ff
+		sta     outputVector
+		lda	#cout/256
+		sta	outputVector+1
+		rts
+;
+;=====================================================
+; Set up the output vector to point to a file write
+; subroutine.
+;
+setOutputFile	lda	#putNextFileByte&$ff
+		sta     outputVector
+		lda	#putNextFileByte/256
+		sta	outputVector+1
+;
+; Clear counts and offsets so the next read will
+; cause the file to be read.
+;
+		lda	#0
+		sta	diskBufOffset
+		rts
+;
+;=====================================================
+; Set up the input vector to point to the normal
+; console input subroutine.
+;
+setInputConsole	lda	#cinecho&$ff
+		sta     inputVector
+		lda	#cinecho/256
+		sta	inputVector+1
+		rts
+;
+cinecho		jsr	cin
+		pha
+		jsr	cout
+		pla
+		rts
+;
+;=====================================================
+; Set up the input vector to point to a file read
+; subroutine.
+;
+setInputFile    lda	#getNextFileByte&$ff
+		sta     inputVector
+		lda	#getNextFileByte/256
+		sta	inputVector+1
+;
+; Clear counts and offsets so the next read will
+; cause the file to be read.
+;
+		lda	#0
+		sta	diskBufOffset
+		sta	diskBufLength
+		rts
+;
+;=====================================================
+; This is a helper function used for redirected I/O.
+; It simply does a jump through the input vector
+; pointer to get the next input character.
+;
+redirectedGetch	jmp	(inputVector)
+;
+;=====================================================
+; This gets the next byte from an open disk file.  If
+; there are no more bytes left, this returns C set.
+; Else, C is clear and A contains the character.
+;
+getNextFileByte ldx 	diskBufOffset
+		cpx	diskBufLength
+		bne	hasdata		;branch if still data
+;
+; There is no data left in the buffer, so read a
+; block from the SD system.
+;
+		lda	#BUFFER_SIZE
+		ldx	#buffer>>8
+		ldy	#buffer&$ff
+		jsr	DiskRead
+		bcs	getNextEof
+;
+; A contains the number of bytes actually read.
+;
+		sta	diskBufLength	;save length
+		cmp	#0		;shouldn't happen
+		beq	getNextEof
+;
+		ldx	#0
+hasdata		lda	buffer,x
+		inx
+		stx	diskBufOffset
+		clc
+		rts
+;
+getNextEof	lda	#0
+		sta	diskBufOffset
+		sta	diskBufLength
+		sec
+		rts
+		page
+;
+;=====================================================
+; Type the contents of an SD file to console.
+;
+typeFile	jsr	putsil
+		db	"Enter filename to type: ",0
+		jsr	getFileName
+		ldy	#filename&$ff
+		ldx	#filename/256
+;		jsr	xParInit
+		jsr	DiskOpenRead
+		bcc	typeFile1	;opened ok
+;
+		jsr	putsil
+		db	CR,LF
+		db	"Failed to open file"
+		db	CR,LF,0
+		jmp	prompt
+;
+; Now just keep reading in bytes and displaying them.
+;
+typeFile1	jsr	setInputFile	;reading from file
+typeFileLoop	jsr	getNextFileByte
+		bcs	typeEof
+		jsr	cout	;display character
+		jmp	typeFileLoop
+;
+typeEof		jsr	DiskClose
+		jmp	prompt
+;
+;=====================================================
+; This flushes any data remaining in the disk buffer
+; and then closes the file.
+;
+CloseOutFile	lda	diskBufOffset
+		beq	closeonly
+		ldx	#buffer>>8
+		ldy	#buffer&$ff
+		jsr	DiskWrite
+;
+closeonly	jmp	DiskClose
+;
 		include	"io.asm"
 		include	"acia.asm"
+	if SD_ENABLED
+		include	"parproto.inc"
+		include	"pario.asm"
+		include "diskfunc.asm"
+	endif
+;
+;*********************************************************
+; Handlers for the interrupts.  Basiclly just jump 
+; through the vectors and hope they are set up properly.
+;
+HandleNMI	jmp	(NMIvec)
+HandleIRQ	jmp	(IRQvec)
+;
+;*********************************************************
+; Default handler.  Save the state of the machine for
+; debugging.  This is taken from the KIM monitor SAVE
+; routine.
+;
+DefaultNMI
+DefaultIRQ	sta	SaveA
+		pla
+		sta	SaveC
+		pla
+		sta	SavePC
+		pla
+		sta	SavePC+1
+		sty	SaveY
+		stx	SaveX
+		tsx
+		stx	SaveSP
+		jsr	DumpRegisters
+		jsr	crlf
+		jmp	WARM
 ;
 ;*********************************************************
 ; 6502 vectors
