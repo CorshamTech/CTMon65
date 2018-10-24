@@ -18,8 +18,12 @@
 ;=========================================================
 ;---------------------------------------------------------
 
-
 		include	"config.inc"
+;
+; Version and revision
+;
+VERSION		equ	0
+REVISION	equ	2
 ;
 ;---------------------------------------------------------
 ; ASCII constants
@@ -188,9 +192,11 @@ RESET		ldx	#$ff
 ;
 		jsr	putsil
 		db	CR,LF,LF,LF,LF
-		db	"CTMON65 rev 0.1"
+		db	"CTMON65 rev "
+		db	VERSION+'0','.'
+		db	REVISION+'0'
 		db	CR,LF
-		db	"08/26/2018 by Bob Applegate K2UT"
+		db	"09/20/2018 by Bob Applegate K2UT"
 		db	", bob@corshamtech.com"
 		db	CR,LF,LF,0
 ;
@@ -202,14 +208,11 @@ RESET		ldx	#$ff
 WARM		ldx	#$ff
 		txs
 ;
-; Reset input/output to the console
-;
-		jsr	setOutputConsole
-		jsr	setInputConsole
-;
 ; Prompt the user and get a line of text
 ;
-prompt		jsr	putsil
+prompt		jsr	setOutputConsole
+		jsr	setInputConsole
+		jsr	putsil
 		db	CR,LF
 		db	"CTMON65> "
 		db	0
@@ -535,7 +538,10 @@ editMem2	cmp	#CR
 ;=====================================================
 ; This handles the Load hex command.
 ;
-loadHex		jsr	putsil
+loadHex		lda	#$ff
+		sta	AutoRun+1
+;
+		jsr	putsil
 		db	CR,LF
 		db	"Enter filename, or Enter to "
 		db	"load from console: ",0
@@ -543,11 +549,6 @@ loadHex		jsr	putsil
 		jsr	getFileName	;get filename
 		lda	filename	;null?
 		beq	loadHexConsole	;load from console
-;
-; Clear the auto-run vector
-;
-		lda	#$ff
-		sta	AutoRun+1	;only do MSB
 ;
 ; Open the file
 ;
