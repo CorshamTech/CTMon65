@@ -6,8 +6,8 @@
 ;
 ; Current version and revision
 ;
-VERSION		equ	0
-REVISION	equ	1
+;VERSION		equ	0
+;REVISION	equ	1
 ;
 FALSE		equ	0
 TRUE		equ	!FALSE

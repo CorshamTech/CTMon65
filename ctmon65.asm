@@ -385,95 +385,110 @@ hexDump		jsr	putsil
 		db	"Hex dump ",0
 		jsr	getAddrRange
 		bcs	cmdRet
+ jsr putsil
+ db "Here A",CR,LF,0
 		jsr	crlf
 ;
-; Move start address to POINT but rounded down to the
-; 16 byte boundary.
+; Move start address to sptr but rounded down to the
+; 16 byte boundary.  While it's really cool to start at
+; the exact address specified by the user, it adds
+; code that really doesn't add much (any?) value.
 ;
 		lda	SAH
 		sta	sptr+1
 		lda	SAL
 		and	#$f0	;force to 16 byte
 		sta	sptr
+ jsr putsil
+ db "Here B",CR,LF,0
 ;
+;-----------------------------------------------------
 ; This starts each line.  Set flag to indcate we're
 ; doing the hex portion, print address, etc.
 ;
-hexdump1	lda	#0	;set flag to hex mode
-		sta	tempA
-		jsr	crlf
+hexdump1	jsr	crlf
 		lda	sptr+1
 		jsr	HexA	;print the address
+
+ jsr putsil
+ db "Here C",CR,LF,0
 		lda	sptr
 		jsr	HexA
-hexdump2	lda	sptr	;push start of line...
-		pha		;...address onto stack
-		lda	sptr+1
-		pha
-		jsr	space2
-		ldx	#BYTESLINE-1	;number of bytes per line
-		jsr	space2	;space before data
-
-hexdump3	ldy	#0	;get next byte...
-		lda	(sptr),y
-		bit	tempA	;hex or ASCII mode?
-		bpl	hexptbt	;branch if hex mode
+		jsr	space2	;two spaces after address
+ jsr putsil
+ db "Here D",CR,LF,0
 ;
-; Print char if printable, else print a dot
+;-----------------------------------------------------
+; This loop gets the next byte, prints the value in
+; hex and adds the appropriate ASCII character to the
+; buffer.
+;
+		ldy	#0	;offset from sptr
+hexdump3	ldx	#0	;bytes on line
+hexdump2	lda	(sptr),y	;get byte
+		jsr	HexA	;print hex version of it
+		jsr	space	;space before next value
+;
+; Put the byte into the buffer
 ;
 		cmp	#' '
 		bcc	hexdot
 		cmp	#'~'
 		bcc	hexpr
 hexdot		lda	#'.'
-hexpr		jsr	cout
-		jmp	hexend
+hexpr		sta	buffer,x	;save for later
 ;
-; Print character as hex.  
+; See if the end of the user defined area was just dumped
 ;
-hexptbt 	jsr	HexA	;print as hex
-		jsr	space	;and follow with a space
-;
-; See if we just dumped the last address.  If not, then
-; increment to the next address and continue.
-;
-hexend  	lda	sptr	;compare first
+hexdumpchk	lda	sptr
 		cmp	EAL
+		bne	hexdump4
 		lda	sptr+1
-		sbc	EAH
+		cmp	EAH
+		beq	hexdumpend
 ;
-; Now increment to the next address
+; Not done yet, so see if at end of the line
 ;
-		php
-		jsr	INCPT
-		plp
-		bcc	hexlntst
+hexdump4	jsr	INCPT	;move to next address
+		inx
+		cpx	#16
+		bne	hexdump2
 ;
-		bit	tempA
-		bmi	hexdone
-		dex
-		bmi	hexdomap
-hexdump5	jsr	space3
-		dex
-		bpl	hexdump5
-hexdomap	dec	tempA
-		pla
-		sta	sptr+1
-		pla
-		sta	sptr
-		jmp     hexdump2
-hexlntst	dex
-		bpl	hexdump3
-		bit	tempA
-		bpl	hexdomap
-		pla
-		pla
+; At end, so dump ASCII contents
+;
+		jsr	dumpbuffer
 		jmp	hexdump1
 ;
-; Clean up the stack and we're done
+; At the end but still need to dump the ASCII version.
 ;
-hexdone		jsr	crlf
+hexdumpend	inx		;count last byte output
+		jsr	dumpbuffer
+		jsr	crlf
 ret1		jmp	prompt
+
+
+;
+;=====================================================
+dumpbuffer
+
+hexdump90	cpx	#16
+		beq	hexdump91
+		lda	#' '
+		sta	buffer,x
+		jsr	space3
+		inx
+		bne	hexdump90
+
+
+
+hexdump91	jsr	space3	;separate the two passes
+		ldx	#0
+hexdump99	lda	buffer,x
+		jsr	cout
+		inx
+		cpx	#16
+		bne	hexdump99
+		rts
 ;
 ;=====================================================
 ; Edit memory.  This waits for a starting address to be
@@ -1071,7 +1086,7 @@ getStartAddr	jsr	getHex
 getDone		rts
 ;
 ;=====================================================
-; Gets a four digit hex address amd places it in
+; Gets a four digit hex address and places it in
 ; EAL and EAH.  Returns C clear if all is well, or C
 ; set on error and A contains the character.
 ;
