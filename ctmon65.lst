@@ -1,7 +1,7 @@
 AS65 Assembler for R6502 [1.42].                                     Page    1
 -------------------------------- ctmon65.asm ---------------------------------
 
-2406 lines read, no errors in pass 1.
+2407 lines read, no errors in pass 1.
                         ;*****************************************************
                         ; CTMON65
                         ;
@@ -21,7 +21,6 @@ AS65 Assembler for R6502 [1.42].                                     Page    1
                         
                         ;=====================================================
                         ;-----------------------------------------------------
-                        
                         
                         		include	"config.inc"
                         ;*****************************************************
@@ -63,10 +62,10 @@ df00 =                  RAM_START	equ	$df00
                         ; Enable EXTENDED_CMDS to allow linking external comma
                         ; to the command handler.
                         ;
+0000 =                  EXTENDED_CMDS	equ	FALSE
 AS65 Assembler for R6502 [1.42].                                     Page    2
 -------------------------------- ctmon65.asm ---------------------------------
 
-0000 =                  EXTENDED_CMDS	equ	FALSE
                         ;
                         ; Define to enable SD related functions
                         ;
@@ -77,6 +76,11 @@ df00 =                  RAM_START	equ	$df00
 0084 =                  BUFFER_SIZE	equ	132
                         
                         
+                        ;
+                        ; Version and revision
+                        ;
+                        ;VERSION		equ	0
+                        ;REVISION	equ	2
                         ;
                         ;-----------------------------------------------------
                         ; ASCII constants
@@ -124,13 +128,13 @@ df02 =                  NMIvec		ds	2
                         ; After loading, if they are different, jump to
                         ; that address.
                         ;
+AS65 Assembler for R6502 [1.42].                                     Page    3
+-------------------------------- ctmon65.asm ---------------------------------
+
 df04 =                  AutoRun		ds	2
                         ;
                         ; Pointer to the subroutine that gets the next input
                         ; character.  Used for doing disk/console input.
-AS65 Assembler for R6502 [1.42].                                     Page    3
--------------------------------- ctmon65.asm ---------------------------------
-
                         ;
 df06 =                  inputVector	ds	2
                         ;
@@ -189,13 +193,13 @@ f003 : 4cb4f0           WARMvec		jmp	WARM
                         ; These are the major and minor revision numbers so th
                         ; code can check to see which CTMON65 version is runni
                         ;
+AS65 Assembler for R6502 [1.42].                                     Page    4
+-------------------------------- ctmon65.asm ---------------------------------
+
 f006 : 00               CTMON65ver	db	VERSION
 f007 : 01               CTMON65rev	db	REVISION
 f008 : 00               		db	0
                         ;
-AS65 Assembler for R6502 [1.42].                                     Page    4
--------------------------------- ctmon65.asm ---------------------------------
-
                         ; Console related functions
                         ;
 f009 : 4c19fb           CINvec		jmp	cin
@@ -251,16 +255,18 @@ f05f : 8d01df           		sta	IRQvec+1
                         ;
 f062 : 206ffa           		jsr	putsil
 f065 : 0d0a0a0a0a       		db	CR,LF,LF,LF,LF
-f06a : 43544d4f4e3635.. 		db	"CTMON65 rev 0.1"
+f06a : 43544d4f4e3635.. 		db	"CTMON65 rev "
+f076 : 302e             		db	VERSION+'0','.'
+f078 : 31               		db	REVISION+'0'
+AS65 Assembler for R6502 [1.42].                                     Page    5
+-------------------------------- ctmon65.asm ---------------------------------
+
 f079 : 0d0a             		db	CR,LF
-f07b : 30382f32362f32.. 		db	"08/26/2018 by Bob Applegate K2UT"
+f07b : 30392f32302f32.. 		db	"09/20/2018 by Bob Applegate K2UT"
 f09b : 2c20626f624063.. 		db	", bob@corshamtech.com"
 f0b0 : 0d0a0a00         		db	CR,LF,LF,0
                         ;
                         ;-----------------------------------------------------
-AS65 Assembler for R6502 [1.42].                                     Page    5
--------------------------------- ctmon65.asm ---------------------------------
-
                         ; Warm start entry point.  This is the best place to j
                         ; in the code after a user program has ended.  Go thro
                         ; the vector, of course!
@@ -268,20 +274,17 @@ f0b0 : 0d0a0a00         		db	CR,LF,LF,0
 f0b4 : a2ff             WARM		ldx	#$ff
 f0b6 : 9a               		txs
                         ;
-                        ; Reset input/output to the console
-                        ;
-f0b7 : 2092f9           		jsr	setOutputConsole
-f0ba : 20adf9           		jsr	setInputConsole
-                        ;
                         ; Prompt the user and get a line of text
                         ;
-f0bd : 206ffa           prompt		jsr	putsil
+f0b7 : 2092f9           prompt		jsr	setOutputConsole
+f0ba : 20adf9           		jsr	setInputConsole
+f0bd : 206ffa           		jsr	putsil
 f0c0 : 0d0a             		db	CR,LF
 f0c2 : 43544d4f4e3635.. 		db	"CTMON65> "
 f0cb : 00               		db	0
 f0cc : 2019fb           prompt2		jsr	cin
 f0cf : c90d             		cmp	#CR
-f0d1 : f0ea             		beq	prompt
+f0d1 : f0e4             		beq	prompt
 f0d3 : c90a             		cmp	#LF
 f0d5 : f0f5             		beq	prompt2	;don't prompt
 f0d7 : 8d99df           		sta	tempA
@@ -311,7 +314,7 @@ f0e2 : 2074f2           		jsr	searchCmd	;try to find it
                         ;
 f0e5 : 206ffa           		jsr	putsil
 f0e8 : 202d204875683f00 		db	" - Huh?",0
-f0f0 : 4cbdf0           cmdFound	jmp	prompt
+f0f0 : 4cb7f0           cmdFound	jmp	prompt
                         ;
                         ;=====================================================
                         ; Vector table of commands.  Each entry consists of a
@@ -320,12 +323,12 @@ f0f0 : 4cbdf0           cmdFound	jmp	prompt
                         ; to a string that describes the command.
                         ;
 f0f3 : 3f               commandTable	db	'?'
-f0f4 : a5f7             		dw	showHelp
-f0f6 : 2bf1             		dw	quesDesc
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page    6
 -------------------------------- ctmon65.asm ---------------------------------
 
+f0f4 : a5f7             		dw	showHelp
+f0f6 : 2bf1             		dw	quesDesc
+                        ;
 f0f8 : 43               		db	'C'
 f0f9 : 0ef7             		dw	doContinue
 f0fb : 48f1             		dw	cDesc
@@ -385,12 +388,12 @@ f1f8 : 4d207878787820.. mDesc		db	"M xxxx xxxx . Memory test",0
 f212 : 50202e2e2e2e2e.. pDesc		db	"P ........... Ping disk controller",0
 f235 : 53207878787820.. sDesc		db	"S xxxx xxxx . Save memory to file",0
 f257 : 54202e2e2e2e2e.. tDesc		db	"T ........... Type disk file",0
-                        ;
-                        ;=====================================================
-                        ; This subroutine will search for a command in a table
 AS65 Assembler for R6502 [1.42].                                     Page    7
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
+                        ;=====================================================
+                        ; This subroutine will search for a command in a table
                         ; and call the appropriate handler.  See the command
                         ; table near the start of the code for what the format
                         ; is.  If a match is found, pop off the return address
@@ -439,7 +442,7 @@ f2a7 : b006             		bcs	cmdRet	;branch on bad address
 f2a9 : 20e5fa           		jsr	crlf
 f2ac : 6c95df           		jmp	(SAL)	;else jump to address
                         ;
-f2af : 4cbdf0           cmdRet		jmp	prompt
+f2af : 4cb7f0           cmdRet		jmp	prompt
                         ;
                         ;=====================================================
                         ; Do a hex dump of a region of memory.  This code was
@@ -450,12 +453,12 @@ f2af : 4cbdf0           cmdRet		jmp	prompt
                         ; Slight bug: the starting address is rounded down to
                         ; a multiple of 16.  I'll fix it eventually.
                         ;
-f2b2 : 206ffa           hexDump		jsr	putsil
-f2b5 : 4865782064756d.. 		db	"Hex dump ",0
-f2bf : 2086f7           		jsr	getAddrRange
 AS65 Assembler for R6502 [1.42].                                     Page    8
 -------------------------------- ctmon65.asm ---------------------------------
 
+f2b2 : 206ffa           hexDump		jsr	putsil
+f2b5 : 4865782064756d.. 		db	"Hex dump ",0
+f2bf : 2086f7           		jsr	getAddrRange
 f2c2 : b0eb             		bcs	cmdRet
 f2c4 : 20e5fa           		jsr	crlf
                         ;
@@ -515,12 +518,12 @@ f317 : a5f1             		lda	sptr+1
 f319 : ed98df           		sbc	EAH
                         ;
                         ; Now increment to the next address
-                        ;
-f31c : 08               		php
-f31d : 2011f9           		jsr	INCPT
 AS65 Assembler for R6502 [1.42].                                     Page    9
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
+f31c : 08               		php
+f31d : 2011f9           		jsr	INCPT
 f320 : 28               		plp
 f321 : 901a             		bcc	hexlntst
                         ;
@@ -548,7 +551,7 @@ f347 : 4cd3f2           		jmp	hexdump1
                         ; Clean up the stack and we're done
                         ;
 f34a : 20e5fa           hexdone		jsr	crlf
-f34d : 4cbdf0           ret1		jmp	prompt
+f34d : 4cb7f0           ret1		jmp	prompt
                         ;
                         ;=====================================================
                         ; Edit memory.  This waits for a starting address to b
@@ -580,12 +583,12 @@ f37f : a000             		ldy	#0
 f381 : b1f0             		lda	(sptr),y	;get byte
 f383 : 20c8fa           		jsr	HexA	;print it
 f386 : 20f8fa           		jsr	space
-                        ;
-f389 : 2028f7           		jsr	getHex
-f38c : b00d             		bcs	editMem2	;not hex
 AS65 Assembler for R6502 [1.42].                                     Page   10
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
+f389 : 2028f7           		jsr	getHex
+f38c : b00d             		bcs	editMem2	;not hex
 f38e : a000             		ldy	#0
 f390 : 91f0             		sta	(sptr),y	;save new value
                         ;
@@ -616,19 +619,17 @@ f3ae : 4c6ff3           		jmp	editMem1
                         ;=====================================================
                         ; This handles the Load hex command.
                         ;
-f3b1 : 206ffa           loadHex		jsr	putsil
-f3b4 : 0d0a             		db	CR,LF
-f3b6 : 456e7465722066.. 		db	"Enter filename, or Enter to "
-f3d2 : 6c6f6164206672.. 		db	"load from console: ",0
+f3b1 : a9ff             loadHex		lda	#$ff
+f3b3 : 8d05df           		sta	AutoRun+1
                         ;
-f3e6 : 2025f6           		jsr	getFileName	;get filename
-f3e9 : ad9adf           		lda	filename	;null?
-f3ec : f032             		beq	loadHexConsole	;load from console
+f3b6 : 206ffa           		jsr	putsil
+f3b9 : 0d0a             		db	CR,LF
+f3bb : 456e7465722066.. 		db	"Enter filename, or Enter to "
+f3d7 : 6c6f6164206672.. 		db	"load from console: ",0
                         ;
-                        ; Clear the auto-run vector
-                        ;
-f3ee : a9ff             		lda	#$ff
-f3f0 : 8d05df           		sta	AutoRun+1	;only do MSB
+f3eb : 2025f6           		jsr	getFileName	;get filename
+f3ee : ad9adf           		lda	filename	;null?
+f3f1 : f02d             		beq	loadHexConsole	;load from console
                         ;
                         ; Open the file
                         ;
@@ -641,16 +642,16 @@ f3fc : 206ffa           openfail	jsr	putsil
 f3ff : 0d0a             		db	CR,LF
 f401 : 4661696c656420.. 		db	"Failed to open file"
 f414 : 0d0a00           		db	CR,LF,0
-f417 : 4cbdf0           cmdRet3		jmp	prompt
+f417 : 4cb7f0           cmdRet3		jmp	prompt
                         ;
 f41a : 20c1f9           loadHexOk	jsr	setInputFile	;redirect input
 f41d : 4c4ef4           		jmp	loadStart
                         ;
                         ; They are loading from the console
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page   11
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
 f420 : 206ffa           loadHexConsole	jsr	putsil
 f423 : 0d0a             		db	CR,LF
 f425 : 57616974696e67.. 		db	"Waiting for file, or ESC to"
@@ -707,15 +708,15 @@ f494 : 0d0a             		db	CR,LF
 f496 : 41626f7274696e67 		db	"Aborting"
 f49e : 0d0a00           		db	CR,LF,0
 f4a1 : 20adf9           loadExit	jsr	setInputConsole
-f4a4 : 4cbdf0           		jmp	prompt
+f4a4 : 4cb7f0           		jmp	prompt
                         ;
                         ; EOF is easy
                         ;
 f4a7 : 2028f7           loadEof		jsr	getHex	;get checksum
-f4aa : 206ffa           		jsr	putsil
 AS65 Assembler for R6502 [1.42].                                     Page   12
 -------------------------------- ctmon65.asm ---------------------------------
 
+f4aa : 206ffa           		jsr	putsil
 f4ad : 0d0a             		db	CR,LF
 f4af : 5375636365737321 		db	"Success!"
 f4b7 : 0d0a00           		db	CR,LF,0
@@ -777,10 +778,10 @@ f4ff : 0d0a             		db	CR,LF
 f501 : 456e7465722066.. 		db	"Enter filename, or Enter to "
 f51d : 6c6f6164206672.. 		db	"load from console: ",0
                         ;
-f531 : 2025f6           		jsr	getFileName	;get filename
 AS65 Assembler for R6502 [1.42].                                     Page   13
 -------------------------------- ctmon65.asm ---------------------------------
 
+f531 : 2025f6           		jsr	getFileName	;get filename
 f534 : ad9adf           		lda	filename	;null?
 f537 : f012             		beq	saveHexConsole	;dump to console
                         ;
@@ -842,10 +843,10 @@ f581 : d025             		bne	Sgo	;more to do
 f583 : a93a             		lda	#':'
 f585 : 208ff9           		jsr	redirectedOutch
 f588 : a900             		lda	#0
-f58a : 2075f9           		jsr	HexToOutput
 AS65 Assembler for R6502 [1.42].                                     Page   14
 -------------------------------- ctmon65.asm ---------------------------------
 
+f58a : 2075f9           		jsr	HexToOutput
 f58d : 2075f9           		jsr	HexToOutput
 f590 : 2075f9           		jsr	HexToOutput
 f593 : a901             		lda	#1
@@ -858,7 +859,7 @@ f59a : 2075f9           		jsr	HexToOutput
 f59d : ad9adf           		lda	filename
 f5a0 : f003             		beq	SDone		;it's going to console
 f5a2 : 2060fa           		jsr	CloseOutFile
-f5a5 : 4cbdf0           SDone		jmp	prompt		;back to the monitor
+f5a5 : 4cb7f0           SDone		jmp	prompt		;back to the monitor
                         ;
                         ; This dumps the next line.  See how many bytes are le
                         ; and if more than BYTESLINE, then just do BYTESLINE.
@@ -907,10 +908,10 @@ f5ef : d0ee             		bne	Sloop2
 f5f1 : ada9df           		lda	CHKL
 f5f4 : 49ff             		eor	#$ff	;one's complement
 f5f6 : 18               		clc
-f5f7 : 6901             		adc	#1	;two's complement
 AS65 Assembler for R6502 [1.42].                                     Page   15
 -------------------------------- ctmon65.asm ---------------------------------
 
+f5f7 : 6901             		adc	#1	;two's complement
 f5f9 : 2075f9           		jsr	HexToOutput
                         ;
                         ; Output a CR/LF
@@ -972,10 +973,10 @@ f65a : 4ce5fa           		jmp	crlf
                         ;=====================================================
                         ; Add the byte in A to the output buffer.  If the
                         ; buffer is full, flush it to disk.
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page   16
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
 f65d : aea7df           putNextFileByte	ldx	diskBufOffset
 f660 : e084             		cpx	#BUFFER_SIZE	;buffer full?
 f662 : d00d             		bne	pNFB		;no
@@ -1037,10 +1038,10 @@ f6c4 : 20466c6167733a00 		db	" Flags:",0
                         ;
 f6cc : a980             		lda	#$80	;bit to test
 f6ce : a24e             		ldx	#'N'	;set ACII char
-f6d0 : 20fff6           		jsr	testbit
 AS65 Assembler for R6502 [1.42].                                     Page   17
 -------------------------------- ctmon65.asm ---------------------------------
 
+f6d0 : 20fff6           		jsr	testbit
                         ;
                         ; V - bit 6
                         ;
@@ -1102,10 +1103,10 @@ f70b : 4c0cfb           		jmp	cout
                         ;=====================================================
                         ; This continues executing from the last saved state,
                         ; such as from a call to DefaultNMI.
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page   18
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
 f70e :                  doContinue
 f70e : ae94df           		ldx	SaveSP
 f711 : 9a               		txs
@@ -1167,10 +1168,10 @@ f762 =                  nibbleHexEnd	equ	*
                         ;
 f762 : 2028f7           getStartAddr	jsr	getHex
 f765 : b00c             		bcs	getDone
-f767 : 8d96df           		sta	SAH
 AS65 Assembler for R6502 [1.42].                                     Page   19
 -------------------------------- ctmon65.asm ---------------------------------
 
+f767 : 8d96df           		sta	SAH
 f76a : 2028f7           		jsr	getHex
 f76d : b004             		bcs	getDone
 f76f : 8d95df           		sta	SAL
@@ -1229,13 +1230,13 @@ f7c9 : 20cff7           		jsr	displayHelp	;display help
                         		jsr	displayHelp
                         		jsr	crlf
                         	endif
-f7cc : 4cbdf0           		jmp	prompt
+f7cc : 4cb7f0           		jmp	prompt
                         ;
                         ;=====================================================
-                        ; Given a pointer to a command table in POINT, display
 AS65 Assembler for R6502 [1.42].                                     Page   20
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ; Given a pointer to a command table in POINT, display
                         ; the help text for all commands in the table.
                         ;
 f7cf : a000             displayHelp	ldy	#0	;index into command table
@@ -1281,7 +1282,7 @@ df8f =                  original	equ	SaveX
 00ba =                  PATTERN_9	equ	$ba
                         ;
 f7f2 : 2019fb           memabort	jsr	cin	;eat pending key
-f7f5 : 4cbdf0           cmdRet2		jmp	prompt
+f7f5 : 4cb7f0           cmdRet2		jmp	prompt
                         ;
 f7f8 : 206ffa           memTest		jsr	putsil
 f7fb : 4d656d6f727920.. 		db	"Memory test ",0
@@ -1297,10 +1298,10 @@ f83c : 8d8edf           		sta	pattern		;..pattern once
                         ;
                         ; Start of loop.  This fills/tests one complete pass
                         ; of memory.
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page   21
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
 f83f : 2024fb           memTestMain	jsr	cstatus	;key pressed?
 f842 : d0ae             		bne	memabort	;branch if yes
 f844 : ad95df           		lda	SAL	;reset pointer to start
@@ -1362,10 +1363,10 @@ f893 : c9ba             		cmp	#PATTERN_9
 f895 : d004             		bne	memTest3
                         ;
                         ; Time to reload the pattern
-                        ;
 AS65 Assembler for R6502 [1.42].                                     Page   22
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ;
 f897 : a901             		lda	#PATTERN_0
 f899 : d005             		bne	memTest4
                         ;
@@ -1419,7 +1420,7 @@ f904 : a000             		ldy	#0
 f906 : b1f0             		lda	(sptr),y
 f908 : 20c8fa           		jsr	HexA
 f90b : 20e5fa           		jsr	crlf
-f90e : 4cbdf0           cmdRet4		jmp	prompt
+f90e : 4cb7f0           cmdRet4		jmp	prompt
                         ;
                         ;=====================================================
                         ; Increment sptr
@@ -1427,10 +1428,10 @@ f90e : 4cbdf0           cmdRet4		jmp	prompt
 f911 : e6f0             INCPT		inc	sptr
 f913 : d002             		bne	incpt2
 f915 : e6f1             		inc	sptr+1
-f917 : 60               incpt2		rts
 AS65 Assembler for R6502 [1.42].                                     Page   23
 -------------------------------- ctmon65.asm ---------------------------------
 
+f917 : 60               incpt2		rts
                         ;
                         ;=====================================================
                         ; Ping the Arduino disk controller.  This just sends t
@@ -1444,7 +1445,7 @@ f924 : 20b2fb           		jsr	DiskPing
 f927 : 206ffa           		jsr	putsil
 f92a : 7375636365737321 		db	"success!"
 f932 : 0d0a00           		db	CR,LF,0
-f935 : 4cbdf0           doDiskDirEnd	jmp	prompt
+f935 : 4cb7f0           doDiskDirEnd	jmp	prompt
                         ;
                         ;=====================================================
                         ; Do a disk directory of the SD card.
@@ -1492,10 +1493,10 @@ f97b : 2084f9           		jsr	hexta	;output nibble
 f97e : 68               		pla
 f97f : 2084f9           		jsr	hexta
 f982 : 68               		pla		;restore
-f983 : 60               		rts
 AS65 Assembler for R6502 [1.42].                                     Page   24
 -------------------------------- ctmon65.asm ---------------------------------
 
+f983 : 60               		rts
                         ;
 f984 : 290f             hexta		and	#%0001111
 f986 : c90a             		cmp	#$0a
@@ -1557,10 +1558,10 @@ f9c0 : 60               		rts
                         ;
                         ;=====================================================
                         ; Set up the input vector to point to a file read
-                        ; subroutine.
 AS65 Assembler for R6502 [1.42].                                     Page   25
 -------------------------------- ctmon65.asm ---------------------------------
 
+                        ; subroutine.
                         ;
 f9c1 : a9d7             setInputFile    lda	#getNextFileByte&$ff
 f9c3 : 8d06df           		sta     inputVector
@@ -1639,7 +1640,7 @@ fa2e : 206ffa           		jsr	putsil
 fa31 : 0d0a             		db	CR,LF
 fa33 : 4661696c656420.. 		db	"Failed to open file"
 fa46 : 0d0a00           		db	CR,LF,0
-fa49 : 4cbdf0           		jmp	prompt
+fa49 : 4cb7f0           		jmp	prompt
                         ;
                         ; Now just keep reading in bytes and displaying them.
                         ;
@@ -1650,7 +1651,7 @@ fa54 : 200cfb           		jsr	cout	;display character
 fa57 : 4c4ffa           		jmp	typeFileLoop
                         ;
 fa5a : 209ffc           typeEof		jsr	DiskClose
-fa5d : 4cbdf0           		jmp	prompt
+fa5d : 4cb7f0           		jmp	prompt
                         ;
                         ;=====================================================
                         ; This flushes any data remaining in the disk buffer

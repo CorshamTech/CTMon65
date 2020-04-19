@@ -22,8 +22,8 @@
 ;
 ; Version and revision
 ;
-VERSION		equ	0
-REVISION	equ	2
+;VERSION		equ	0
+;REVISION	equ	2
 ;
 ;---------------------------------------------------------
 ; ASCII constants
