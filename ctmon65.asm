@@ -14,16 +14,13 @@
 ; bob@corshamtech.com
 ; www.corshamtech.com
 ;*********************************************************
-
-;=========================================================
-;---------------------------------------------------------
-
+;
 		include	"config.inc"
 ;
-; Version and revision
+; Current version and revision
 ;
 VERSION		equ	0
-REVISION	equ	2
+REVISION	equ	3
 ;
 ;---------------------------------------------------------
 ; ASCII constants
@@ -373,10 +370,7 @@ jumpAddress	jsr	putsil
 cmdRet		jmp	prompt
 ;
 ;=====================================================
-; Do a hex dump of a region of memory.  This code was
-; taken from MICRO issue 5, from an article by
-; J.C. Williams.  I changed it a bit, but it's still
-; basically the same code.
+; Do a hex dump of a region of memory.
 ;
 ; Slight bug: the starting address is rounded down to
 ; a multiple of 16.  I'll fix it eventually.
@@ -385,8 +379,6 @@ hexDump		jsr	putsil
 		db	"Hex dump ",0
 		jsr	getAddrRange
 		bcs	cmdRet
-; jsr putsil
-; db "Here A",CR,LF,0
 		jsr	crlf
 ;
 ; Move start address to sptr but rounded down to the
@@ -399,8 +391,6 @@ hexDump		jsr	putsil
 		lda	SAL
 		and	#$f0	;force to 16 byte
 		sta	sptr
-; jsr putsil
-; db "Here B",CR,LF,0
 ;
 ;-----------------------------------------------------
 ; This starts each line.  Set flag to indcate we're
@@ -409,14 +399,9 @@ hexDump		jsr	putsil
 hexdump1	jsr	crlf
 		lda	sptr+1
 		jsr	HexA	;print the address
-
-; jsr putsil
-; db "Here C",CR,LF,0
 		lda	sptr
 		jsr	HexA
 		jsr	space2	;two spaces after address
-; jsr putsil
-; db "Here D",CR,LF,0
 ;
 ;-----------------------------------------------------
 ; This loop gets the next byte, prints the value in
@@ -429,7 +414,8 @@ hexdump2	lda	(sptr),y	;get byte
 		jsr	HexA	;print hex version of it
 		jsr	space	;space before next value
 ;
-; Put the byte into the buffer
+; Put the byte into the buffer.  If it is not printable
+; ASCII then substitute a dot instead.
 ;
 		cmp	#' '
 		bcc	hexdot
@@ -451,42 +437,40 @@ hexdumpchk	lda	sptr
 ;
 hexdump4	jsr	INCPT	;move to next address
 		inx
-		cpx	#16
+		cpx	#BYTESLINE
 		bne	hexdump2
 ;
 ; At end, so dump ASCII contents
 ;
-		jsr	dumpbuffer
+		jsr	dumpBuffer
 		jmp	hexdump1
 ;
 ; At the end but still need to dump the ASCII version.
 ;
 hexdumpend	inx		;count last byte output
-		jsr	dumpbuffer
+		jsr	dumpBuffer
 		jsr	crlf
 ret1		jmp	prompt
-
-
 ;
 ;=====================================================
-dumpbuffer
-
-hexdump90	cpx	#16
-		beq	hexdump91
-		lda	#' '
+; A helper function that prints the ASCII data in the
+; buffer.  On entry X contains the number of bytes
+; in the buffer.
+;
+dumpBuffer	cpx	#BYTESLINE	;is buffer full?
+		beq	hexdump91	;jump if so
+		lda	#' '	;else fill with spaces
 		sta	buffer,x
-		jsr	space3
+		jsr	space3	;and space over
 		inx
-		bne	hexdump90
-
-
-
+		bne	dumpBuffer
+;
 hexdump91	jsr	space3	;separate the two passes
 		ldx	#0
 hexdump99	lda	buffer,x
-		jsr	cout
+		jsr	cout	;print char in buffer
 		inx
-		cpx	#16
+		cpx	#BYTESLINE
 		bne	hexdump99
 		rts
 ;
