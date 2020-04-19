@@ -202,33 +202,33 @@ f008 : 00               		db	0
                         ;
                         ; Console related functions
                         ;
-f009 : 4c0afb           CINvec		jmp	cin
-f00c : 4cfdfa           COUTvec		jmp	cout
-f00f : 4c15fb           CSTATvec	jmp	cstatus
-f012 : 4c60fa           PUTSILvec	jmp	putsil
-f015 : 4c9efa           GETLINEvec	jmp	getline
-f018 : 4cd6fa           CRLFvec		jmp	crlf
-f01b : 4cb9fa           OUTHEXvec	jmp	HexA
+f009 : 4c0bfb           CINvec		jmp	cin
+f00c : 4cfefa           COUTvec		jmp	cout
+f00f : 4c16fb           CSTATvec	jmp	cstatus
+f012 : 4c61fa           PUTSILvec	jmp	putsil
+f015 : 4c9ffa           GETLINEvec	jmp	getline
+f018 : 4cd7fa           CRLFvec		jmp	crlf
+f01b : 4cbafa           OUTHEXvec	jmp	HexA
                         ;
                         ; Low-level functions to access the SD card system
                         ;
                         	if	SD_ENABLED
-f01e : 4c1bfb           XPARINITvev	jmp	xParInit
-f021 : 4c2afb           XPARSETWRITEvec	jmp	xParSetWrite
-f024 : 4c3ffb           XPARSETREADvec	jmp	xParSetRead
-f027 : 4c54fb           XPARWRITEvec	jmp	xParWriteByte
-f02a : 4c7ffb           XPARREADvec	jmp	xParReadByte
+f01e : 4c1cfb           XPARINITvev	jmp	xParInit
+f021 : 4c2bfb           XPARSETWRITEvec	jmp	xParSetWrite
+f024 : 4c40fb           XPARSETREADvec	jmp	xParSetRead
+f027 : 4c55fb           XPARWRITEvec	jmp	xParWriteByte
+f02a : 4c80fb           XPARREADvec	jmp	xParReadByte
                         ;
                         ; Higher level SD card functions
                         ;
-f02d : 4ca3fb           DISKPINGvec	jmp	DiskPing
-f030 : 4cb6fb           DISKDIRvec	jmp	DiskDir
-f033 : 4cc0fb           DISKDIRNEXTVEC	jmp	DiskDirNext
-f036 : 4cf1fb           DISKOPENREADvec	jmp	DiskOpenRead
-f039 : 4c22fc           DISKOPENWRITvec	jmp	DiskOpenWrite
-f03c : 4c27fc           DISKREADvec	jmp	DiskRead
-f03f : 4c59fc           DISKWRITEvec	jmp	DiskWrite
-f042 : 4c90fc           DISKCLOSEvec	jmp	DiskClose
+f02d : 4ca4fb           DISKPINGvec	jmp	DiskPing
+f030 : 4cb7fb           DISKDIRvec	jmp	DiskDir
+f033 : 4cc1fb           DISKDIRNEXTVEC	jmp	DiskDirNext
+f036 : 4cf2fb           DISKOPENREADvec	jmp	DiskOpenRead
+f039 : 4c23fc           DISKOPENWRITvec	jmp	DiskOpenWrite
+f03c : 4c28fc           DISKREADvec	jmp	DiskRead
+f03f : 4c5afc           DISKWRITEvec	jmp	DiskWrite
+f042 : 4c91fc           DISKCLOSEvec	jmp	DiskClose
                         	endif	;SD_ENABLED
                         ;
                         ;-----------------------------------------------------
@@ -236,24 +236,24 @@ f042 : 4c90fc           DISKCLOSEvec	jmp	DiskClose
                         ;
 f045 : a2ff             RESET		ldx	#$ff
 f047 : 9a               		txs
-f048 : 20f1fa           		jsr	cinit
-f04b : 201bfb           		jsr	xParInit
+f048 : 20f2fa           		jsr	cinit
+f04b : 201cfb           		jsr	xParInit
                         ;
                         ; Reset the NMI and IRQ vectors
                         ;
-f04e : a99b             		lda	#DefaultNMI&$ff
+f04e : a99c             		lda	#DefaultNMI&$ff
 f050 : 8d02df           		sta	NMIvec
 f053 : a9fc             		lda	#DefaultNMI>>8
 f055 : 8d03df           		sta	NMIvec+1
                         ;
-f058 : a99b             		lda	#DefaultIRQ&$ff
+f058 : a99c             		lda	#DefaultIRQ&$ff
 f05a : 8d00df           		sta	IRQvec
 f05d : a9fc             		lda	#DefaultIRQ>>8
 f05f : 8d01df           		sta	IRQvec+1
                         ;
                         ; Print start-up message
                         ;
-f062 : 2060fa           		jsr	putsil
+f062 : 2061fa           		jsr	putsil
 f065 : 0d0a0a0a0a       		db	CR,LF,LF,LF,LF
 f06a : 43544d4f4e3635.. 		db	"CTMON65 rev "
 f076 : 302e             		db	VERSION+'0','.'
@@ -276,13 +276,13 @@ f0b6 : 9a               		txs
                         ;
                         ; Prompt the user and get a line of text
                         ;
-f0b7 : 2083f9           prompt		jsr	setOutputConsole
-f0ba : 209ef9           		jsr	setInputConsole
-f0bd : 2060fa           		jsr	putsil
+f0b7 : 2084f9           prompt		jsr	setOutputConsole
+f0ba : 209ff9           		jsr	setInputConsole
+f0bd : 2061fa           		jsr	putsil
 f0c0 : 0d0a             		db	CR,LF
 f0c2 : 43544d4f4e3635.. 		db	"CTMON65> "
 f0cb : 00               		db	0
-f0cc : 200afb           prompt2		jsr	cin
+f0cc : 200bfb           prompt2		jsr	cin
 f0cf : c90d             		cmp	#CR
 f0d1 : f0e4             		beq	prompt
 f0d3 : c90a             		cmp	#LF
@@ -312,7 +312,7 @@ f0e2 : 2074f2           		jsr	searchCmd	;try to find it
                         ; If that returns, then the command was not found.
                         ; Print that it's unknown.
                         ;
-f0e5 : 2060fa           		jsr	putsil
+f0e5 : 2061fa           		jsr	putsil
 f0e8 : 202d204875683f00 		db	" - Huh?",0
 f0f0 : 4cb7f0           cmdFound	jmp	prompt
                         ;
@@ -326,19 +326,19 @@ f0f3 : 3f               commandTable	db	'?'
 AS65 Assembler for R6502 [1.42].                                     Page    6
 -------------------------------- ctmon65.asm ---------------------------------
 
-f0f4 : 96f7             		dw	showHelp
+f0f4 : 97f7             		dw	showHelp
 f0f6 : 2bf1             		dw	quesDesc
                         ;
 f0f8 : 43               		db	'C'
-f0f9 : fff6             		dw	doContinue
+f0f9 : 00f7             		dw	doContinue
 f0fb : 48f1             		dw	cDesc
                         ;
 f0fd : 44               		db	'D'
-f0fe : 29f9             		dw	doDiskDir
+f0fe : 2af9             		dw	doDiskDir
 f100 : 69f1             		dw	dDesc
                         ;
 f102 : 45               		db	'E'	;edit memory
-f103 : 41f3             		dw	editMemory
+f103 : 42f3             		dw	editMemory
 f105 : 86f1             		dw	eDesc
                         ;
 f107 : 48               		db	'H'	;hex dump
@@ -350,23 +350,23 @@ f10d : 98f2             		dw	jumpAddress
 f10f : bef1             		dw	jDesc
                         ;
 f111 : 4c               		db	'L'	;load Intel HEX file
-f112 : a2f3             		dw	loadHex
+f112 : a3f3             		dw	loadHex
 f114 : dcf1             		dw	lDesc
                         ;
 f116 : 4d               		db	'M'	;perform memory test
-f117 : e9f7             		dw	memTest
+f117 : eaf7             		dw	memTest
 f119 : f8f1             		dw	mDesc
                         ;
 f11b : 50               		db	'P'	;ping remote disk
-f11c : 09f9             		dw	pingDisk
+f11c : 0af9             		dw	pingDisk
 f11e : 12f2             		dw	pDesc
                         ;
 f120 : 53               		db	'S'	;save memory as hex file
-f121 : e8f4             		dw	saveHex
+f121 : e9f4             		dw	saveHex
 f123 : 35f2             		dw	sDesc
                         ;
 f125 : 54               		db	'T'	;type a file on SD
-f126 : f7f9             		dw	typeFile
+f126 : f8f9             		dw	typeFile
 f128 : 57f2             		dw	tDesc
                         ;
 f12a : 00               		db	0	;marks end of table
@@ -435,11 +435,11 @@ f297 : 60               cmdNotFound	rts
                         ; Handles the command to prompt for an address and the
                         ; jump to it.
                         ;
-f298 : 2060fa           jumpAddress	jsr	putsil
+f298 : 2061fa           jumpAddress	jsr	putsil
 f29b : 4a756d7020746f.. 		db	"Jump to ",0
-f2a4 : 2053f7           		jsr	getStartAddr
+f2a4 : 2054f7           		jsr	getStartAddr
 f2a7 : b006             		bcs	cmdRet	;branch on bad address
-f2a9 : 20d6fa           		jsr	crlf
+f2a9 : 20d7fa           		jsr	crlf
 f2ac : 6c95df           		jmp	(SAL)	;else jump to address
                         ;
 f2af : 4cb7f0           cmdRet		jmp	prompt
@@ -456,13 +456,13 @@ f2af : 4cb7f0           cmdRet		jmp	prompt
 AS65 Assembler for R6502 [1.42].                                     Page    8
 -------------------------------- ctmon65.asm ---------------------------------
 
-f2b2 : 2060fa           hexDump		jsr	putsil
+f2b2 : 2061fa           hexDump		jsr	putsil
 f2b5 : 4865782064756d.. 		db	"Hex dump ",0
-f2bf : 2077f7           		jsr	getAddrRange
+f2bf : 2078f7           		jsr	getAddrRange
 f2c2 : b0eb             		bcs	cmdRet
                         ; jsr putsil
                         ; db "Here A",CR,LF,0
-f2c4 : 20d6fa           		jsr	crlf
+f2c4 : 20d7fa           		jsr	crlf
                         ;
                         ; Move start address to sptr but rounded down to the
                         ; 16 byte boundary.  While it's really cool to start a
@@ -481,15 +481,15 @@ f2d1 : 85f0             		sta	sptr
                         ; This starts each line.  Set flag to indcate we're
                         ; doing the hex portion, print address, etc.
                         ;
-f2d3 : 20d6fa           hexdump1	jsr	crlf
+f2d3 : 20d7fa           hexdump1	jsr	crlf
 f2d6 : a5f1             		lda	sptr+1
-f2d8 : 20b9fa           		jsr	HexA	;print the address
+f2d8 : 20bafa           		jsr	HexA	;print the address
                         
                         ; jsr putsil
                         ; db "Here C",CR,LF,0
 f2db : a5f0             		lda	sptr
-f2dd : 20b9fa           		jsr	HexA
-f2e0 : 20e6fa           		jsr	space2	;two spaces after address
+f2dd : 20bafa           		jsr	HexA
+f2e0 : 20e7fa           		jsr	space2	;two spaces after address
                         ; jsr putsil
                         ; db "Here D",CR,LF,0
                         ;
@@ -501,8 +501,8 @@ f2e0 : 20e6fa           		jsr	space2	;two spaces after address
 f2e3 : a000             		ldy	#0	;offset from sptr
 f2e5 : a200             hexdump3	ldx	#0	;bytes on line
 f2e7 : b1f0             hexdump2	lda	(sptr),y	;get byte
-f2e9 : 20b9fa           		jsr	HexA	;print hex version of it
-f2ec : 20e9fa           		jsr	space	;space before next value
+f2e9 : 20bafa           		jsr	HexA	;print hex version of it
+f2ec : 20eafa           		jsr	space	;space before next value
                         ;
                         ; Put the byte into the buffer
                         ;
@@ -527,46 +527,46 @@ f308 : f00e             		beq	hexdumpend
                         ;
                         ; Not done yet, so see if at end of the line
                         ;
-f30a : 2002f9           hexdump4	jsr	INCPT	;move to next address
+f30a : 2003f9           hexdump4	jsr	INCPT	;move to next address
 f30d : e8               		inx
 f30e : e010             		cpx	#16
 f310 : d0d5             		bne	hexdump2
                         ;
                         ; At end, so dump ASCII contents
                         ;
-f312 : 2021f3           		jsr	dumpbuffer
+f312 : 2022f3           		jsr	dumpbuffer
 f315 : 4cd3f2           		jmp	hexdump1
                         ;
                         ; At the end but still need to dump the ASCII version.
                         ;
-f318 :                  hexdumpend	;inx		;count last byte output
-f318 : 2021f3           		jsr	dumpbuffer
-f31b : 20d6fa           		jsr	crlf
-f31e : 4cb7f0           ret1		jmp	prompt
+f318 : e8               hexdumpend	inx		;count last byte output
+f319 : 2022f3           		jsr	dumpbuffer
+f31c : 20d7fa           		jsr	crlf
+f31f : 4cb7f0           ret1		jmp	prompt
                         
                         
                         ;
                         ;=====================================================
-f321 :                  dumpbuffer
+f322 :                  dumpbuffer
                         
-f321 : e010             hexdump90	cpx	#16
-f323 : f00b             		beq	hexdump91
-f325 : a920             		lda	#' '
-f327 : 9d0adf           		sta	buffer,x
-f32a : 20e3fa           		jsr	space3
-f32d : e8               		inx
-f32e : d0f1             		bne	hexdump90
+f322 : e010             hexdump90	cpx	#16
+f324 : f00b             		beq	hexdump91
+f326 : a920             		lda	#' '
+f328 : 9d0adf           		sta	buffer,x
+f32b : 20e4fa           		jsr	space3
+f32e : e8               		inx
+f32f : d0f1             		bne	hexdump90
                         
                         
                         
-f330 : 20e3fa           hexdump91	jsr	space3	;separate the two passes
-f333 : a200             		ldx	#0
-f335 : bd0adf           hexdump99	lda	buffer,x
-f338 : 20fdfa           		jsr	cout
-f33b : e8               		inx
-f33c : e010             		cpx	#16
-f33e : d0f5             		bne	hexdump99
-f340 : 60               		rts
+f331 : 20e4fa           hexdump91	jsr	space3	;separate the two passes
+f334 : a200             		ldx	#0
+f336 : bd0adf           hexdump99	lda	buffer,x
+f339 : 20fefa           		jsr	cout
+f33c : e8               		inx
+f33d : e010             		cpx	#16
+f33f : d0f5             		bne	hexdump99
+f341 : 60               		rts
                         ;
                         ;=====================================================
                         ; Edit memory.  This waits for a starting address to b
@@ -577,207 +577,207 @@ f340 : 60               		rts
                         ;   RETURN moves to next address
                         ;   BACKSPACE moves back one address
                         ;
-f341 : 2060fa           editMemory	jsr	putsil
-f344 : 45646974206d65.. 		db	"Edit memory ",0
-f351 : 2053f7           		jsr	getStartAddr
-f354 : b0c8             		bcs	ret1
-f356 : ad95df           		lda	SAL	;move address into...
-f359 : 85f0             		sta	sptr	;...POINT
+f342 : 2061fa           editMemory	jsr	putsil
+f345 : 45646974206d65.. 		db	"Edit memory ",0
+f352 : 2054f7           		jsr	getStartAddr
+f355 : b0c8             		bcs	ret1
+f357 : ad95df           		lda	SAL	;move address into...
+f35a : 85f0             		sta	sptr	;...POINT
 AS65 Assembler for R6502 [1.42].                                     Page   10
 -------------------------------- ctmon65.asm ---------------------------------
 
-f35b : ad96df           		lda	SAH
-f35e : 85f1             		sta	sptr+1
+f35c : ad96df           		lda	SAH
+f35f : 85f1             		sta	sptr+1
                         ;
                         ; Display the current location
                         ;
-f360 : 20d6fa           editMem1	jsr	crlf
-f363 : a5f1             		lda	sptr+1
-f365 : 20b9fa           		jsr	HexA
-f368 : a5f0             		lda	sptr
-f36a : 20b9fa           		jsr	HexA
-f36d : 20e9fa           		jsr	space
-f370 : a000             		ldy	#0
-f372 : b1f0             		lda	(sptr),y	;get byte
-f374 : 20b9fa           		jsr	HexA	;print it
-f377 : 20e9fa           		jsr	space
+f361 : 20d7fa           editMem1	jsr	crlf
+f364 : a5f1             		lda	sptr+1
+f366 : 20bafa           		jsr	HexA
+f369 : a5f0             		lda	sptr
+f36b : 20bafa           		jsr	HexA
+f36e : 20eafa           		jsr	space
+f371 : a000             		ldy	#0
+f373 : b1f0             		lda	(sptr),y	;get byte
+f375 : 20bafa           		jsr	HexA	;print it
+f378 : 20eafa           		jsr	space
                         ;
-f37a : 2019f7           		jsr	getHex
-f37d : b00d             		bcs	editMem2	;not hex
-f37f : a000             		ldy	#0
-f381 : 91f0             		sta	(sptr),y	;save new value
+f37b : 201af7           		jsr	getHex
+f37e : b00d             		bcs	editMem2	;not hex
+f380 : a000             		ldy	#0
+f382 : 91f0             		sta	(sptr),y	;save new value
                         ;
                         ; Bump POINT to next location
                         ;
-f383 : e6f0             editMem3	inc	sptr
-f385 : d0d9             		bne	editMem1
-f387 : e6f1             		inc	sptr+1
-f389 : 4c60f3           		jmp	editMem1
+f384 : e6f0             editMem3	inc	sptr
+f386 : d0d9             		bne	editMem1
+f388 : e6f1             		inc	sptr+1
+f38a : 4c61f3           		jmp	editMem1
                         ;
                         ; Not hex, so see if another command
                         ;
-f38c : c90d             editMem2	cmp	#CR
-f38e : f0f3             		beq	editMem3	;move to next
-f390 : c908             		cmp	#BS
-f392 : d08a             		bne     ret1		;else exit
+f38d : c90d             editMem2	cmp	#CR
+f38f : f0f3             		beq	editMem3	;move to next
+f391 : c908             		cmp	#BS
+f393 : d08a             		bne     ret1		;else exit
                         ;
                         ; Move back one location
                         ;
-f394 : 38               		sec
-f395 : a5f0             		lda	sptr
-f397 : e901             		sbc	#1
-f399 : 85f0             		sta	sptr
-f39b : b0c3             		bcs	editMem1
-f39d : c6f1             		dec	sptr+1
-f39f : 4c60f3           		jmp	editMem1
+f395 : 38               		sec
+f396 : a5f0             		lda	sptr
+f398 : e901             		sbc	#1
+f39a : 85f0             		sta	sptr
+f39c : b0c3             		bcs	editMem1
+f39e : c6f1             		dec	sptr+1
+f3a0 : 4c61f3           		jmp	editMem1
                         ;
                         ;=====================================================
                         ; This handles the Load hex command.
                         ;
-f3a2 : a9ff             loadHex		lda	#$ff
-f3a4 : 8d05df           		sta	AutoRun+1
+f3a3 : a9ff             loadHex		lda	#$ff
+f3a5 : 8d05df           		sta	AutoRun+1
                         ;
-f3a7 : 2060fa           		jsr	putsil
-f3aa : 0d0a             		db	CR,LF
-f3ac : 456e7465722066.. 		db	"Enter filename, or Enter to "
-f3c8 : 6c6f6164206672.. 		db	"load from console: ",0
+f3a8 : 2061fa           		jsr	putsil
+f3ab : 0d0a             		db	CR,LF
+f3ad : 456e7465722066.. 		db	"Enter filename, or Enter to "
+f3c9 : 6c6f6164206672.. 		db	"load from console: ",0
                         ;
-f3dc : 2016f6           		jsr	getFileName	;get filename
-f3df : ad9adf           		lda	filename	;null?
-f3e2 : f02d             		beq	loadHexConsole	;load from console
+f3dd : 2017f6           		jsr	getFileName	;get filename
+f3e0 : ad9adf           		lda	filename	;null?
+f3e3 : f02d             		beq	loadHexConsole	;load from console
                         ;
                         ; Open the file
                         ;
 AS65 Assembler for R6502 [1.42].                                     Page   11
 -------------------------------- ctmon65.asm ---------------------------------
 
-f3e4 : a09a             		ldy	#filename&$ff
-f3e6 : a2df             		ldx	#filename/256
-f3e8 : 20f1fb           		jsr	DiskOpenRead
-f3eb : 901e             		bcc	loadHexOk	;opened ok
+f3e5 : a09a             		ldy	#filename&$ff
+f3e7 : a2df             		ldx	#filename/256
+f3e9 : 20f2fb           		jsr	DiskOpenRead
+f3ec : 901e             		bcc	loadHexOk	;opened ok
                         ;
-f3ed : 2060fa           openfail	jsr	putsil
-f3f0 : 0d0a             		db	CR,LF
-f3f2 : 4661696c656420.. 		db	"Failed to open file"
-f405 : 0d0a00           		db	CR,LF,0
-f408 : 4cb7f0           cmdRet3		jmp	prompt
+f3ee : 2061fa           openfail	jsr	putsil
+f3f1 : 0d0a             		db	CR,LF
+f3f3 : 4661696c656420.. 		db	"Failed to open file"
+f406 : 0d0a00           		db	CR,LF,0
+f409 : 4cb7f0           cmdRet3		jmp	prompt
                         ;
-f40b : 20b2f9           loadHexOk	jsr	setInputFile	;redirect input
-f40e : 4c3ff4           		jmp	loadStart
+f40c : 20b3f9           loadHexOk	jsr	setInputFile	;redirect input
+f40f : 4c40f4           		jmp	loadStart
                         ;
                         ; They are loading from the console
                         ;
-f411 : 2060fa           loadHexConsole	jsr	putsil
-f414 : 0d0a             		db	CR,LF
-f416 : 57616974696e67.. 		db	"Waiting for file, or ESC to"
-f431 : 20657869742e2e2e 		db	" exit..."
-f439 : 0d0a00           		db	CR,LF,0
-f43c : 209ef9           		jsr	setInputConsole
+f412 : 2061fa           loadHexConsole	jsr	putsil
+f415 : 0d0a             		db	CR,LF
+f417 : 57616974696e67.. 		db	"Waiting for file, or ESC to"
+f432 : 20657869742e2e2e 		db	" exit..."
+f43a : 0d0a00           		db	CR,LF,0
+f43d : 209ff9           		jsr	setInputConsole
                         ;
                         ; The start of a line.  First character should be a
                         ; colon, but toss out CRs, LFs, etc.  Anything else
                         ; causes an abort.
                         ;
-f43f : 20c5f9           loadStart	jsr	redirectedGetch	;get start of line
-f442 : c90d             		cmp	#CR
-f444 : f0f9             		beq	loadStart
-f446 : c90a             		cmp	#LF
-f448 : f0f5             		beq	loadStart
-f44a : c93a             		cmp	#':'	;what we expect
-f44c : d034             		bne	loadAbort
+f440 : 20c6f9           loadStart	jsr	redirectedGetch	;get start of line
+f443 : c90d             		cmp	#CR
+f445 : f0f9             		beq	loadStart
+f447 : c90a             		cmp	#LF
+f449 : f0f5             		beq	loadStart
+f44b : c93a             		cmp	#':'	;what we expect
+f44d : d034             		bne	loadAbort
                         ;
                         ; Get the header of the record
                         ;
-f44e : a900             		lda	#0
-f450 : 8da9df           		sta	CHKL	;initialize checksum
+f44f : a900             		lda	#0
+f451 : 8da9df           		sta	CHKL	;initialize checksum
                         ;
-f453 : 2019f7           		jsr	getHex	;get byte count
-f456 : b02a             		bcs	loadAbort
-f458 : 8d8fdf           		sta	SaveX	;save byte count
-f45b : 205cf9           		jsr	updateCrc
-f45e : 2019f7           		jsr	getHex	;get the MSB of offset
-f461 : b01f             		bcs	loadAbort
-f463 : 85f1             		sta	sptr+1
-f465 : 205cf9           		jsr	updateCrc
-f468 : 2019f7           		jsr	getHex	;get LSB of offset
-f46b : b015             		bcs	loadAbort
-f46d : 85f0             		sta	sptr
-f46f : 205cf9           		jsr	updateCrc
-f472 : 2019f7           		jsr	getHex	;get the record type
-f475 : b00b             		bcs	loadAbort
-f477 : 205cf9           		jsr	updateCrc
+f454 : 201af7           		jsr	getHex	;get byte count
+f457 : b02a             		bcs	loadAbort
+f459 : 8d8fdf           		sta	SaveX	;save byte count
+f45c : 205df9           		jsr	updateCrc
+f45f : 201af7           		jsr	getHex	;get the MSB of offset
+f462 : b01f             		bcs	loadAbort
+f464 : 85f1             		sta	sptr+1
+f466 : 205df9           		jsr	updateCrc
+f469 : 201af7           		jsr	getHex	;get LSB of offset
+f46c : b015             		bcs	loadAbort
+f46e : 85f0             		sta	sptr
+f470 : 205df9           		jsr	updateCrc
+f473 : 201af7           		jsr	getHex	;get the record type
+f476 : b00b             		bcs	loadAbort
+f478 : 205df9           		jsr	updateCrc
                         ;
                         ; Only handle two record types:
                         ;    00 = data record
                         ;    01 = end of file record
                         ;
-f47a : c900             		cmp	#DATA_RECORD
-f47c : f03a             		beq	loadDataRec
+f47b : c900             		cmp	#DATA_RECORD
+f47d : f03a             		beq	loadDataRec
 AS65 Assembler for R6502 [1.42].                                     Page   12
 -------------------------------- ctmon65.asm ---------------------------------
 
-f47e : c901             		cmp	#EOF_RECORD
-f480 : f016             		beq	loadEof
+f47f : c901             		cmp	#EOF_RECORD
+f481 : f016             		beq	loadEof
                         ;
                         ; Unknown record type
                         ;
-f482 : 2060fa           loadAbort       jsr	putsil
-f485 : 0d0a             		db	CR,LF
-f487 : 41626f7274696e67 		db	"Aborting"
-f48f : 0d0a00           		db	CR,LF,0
-f492 : 209ef9           loadExit	jsr	setInputConsole
-f495 : 4cb7f0           		jmp	prompt
+f483 : 2061fa           loadAbort       jsr	putsil
+f486 : 0d0a             		db	CR,LF
+f488 : 41626f7274696e67 		db	"Aborting"
+f490 : 0d0a00           		db	CR,LF,0
+f493 : 209ff9           loadExit	jsr	setInputConsole
+f496 : 4cb7f0           		jmp	prompt
                         ;
                         ; EOF is easy
                         ;
-f498 : 2019f7           loadEof		jsr	getHex	;get checksum
-f49b : 2060fa           		jsr	putsil
-f49e : 0d0a             		db	CR,LF
-f4a0 : 5375636365737321 		db	"Success!"
-f4a8 : 0d0a00           		db	CR,LF,0
+f499 : 201af7           loadEof		jsr	getHex	;get checksum
+f49c : 2061fa           		jsr	putsil
+f49f : 0d0a             		db	CR,LF
+f4a1 : 5375636365737321 		db	"Success!"
+f4a9 : 0d0a00           		db	CR,LF,0
                         ;
                         ; If the auto-run vector is no longer $ffff, then jump
                         ; to whatever it points to.
                         ;
-f4ab : ad05df           		lda	AutoRun+1
-f4ae : c9ff             		cmp	#$ff		;unchanged?
-f4b0 : f003             		beq	lExit1
-f4b2 : 6c04df           		jmp	(AutoRun)	;execute!
+f4ac : ad05df           		lda	AutoRun+1
+f4af : c9ff             		cmp	#$ff		;unchanged?
+f4b1 : f003             		beq	lExit1
+f4b3 : 6c04df           		jmp	(AutoRun)	;execute!
                         ;
-f4b5 : 4c92f4           lExit1		jmp	loadExit
+f4b6 : 4c93f4           lExit1		jmp	loadExit
                         ;
                         ; Data records have more work.  After processing the
                         ; line, print a dot to indicate progress.  This should
                         ; be re-thought as it could slow down loading a really
                         ; big file if the console speed is slow.
                         ;
-f4b8 : ae8fdf           loadDataRec	ldx	SaveX	;byte count
-f4bb : a000             		ldy	#0	;offset
-f4bd : 8e8fdf           loadData1	stx	SaveX
-f4c0 : 8c90df           		sty	SaveY
-f4c3 : 2019f7           		jsr	getHex
-f4c6 : b0ba             		bcs	loadAbort
-f4c8 : 205cf9           		jsr	updateCrc
-f4cb : ac90df           		ldy	SaveY
-f4ce : ae8fdf           		ldx	SaveX
-f4d1 : 91f0             		sta	(sptr),y
-f4d3 : c8               		iny
-f4d4 : ca               		dex
-f4d5 : d0e6             		bne	loadData1
+f4b9 : ae8fdf           loadDataRec	ldx	SaveX	;byte count
+f4bc : a000             		ldy	#0	;offset
+f4be : 8e8fdf           loadData1	stx	SaveX
+f4c1 : 8c90df           		sty	SaveY
+f4c4 : 201af7           		jsr	getHex
+f4c7 : b0ba             		bcs	loadAbort
+f4c9 : 205df9           		jsr	updateCrc
+f4cc : ac90df           		ldy	SaveY
+f4cf : ae8fdf           		ldx	SaveX
+f4d2 : 91f0             		sta	(sptr),y
+f4d4 : c8               		iny
+f4d5 : ca               		dex
+f4d6 : d0e6             		bne	loadData1
                         ;
                         ; All the bytes were read so get the checksum and see
                         ; if it agrees.  The checksum is a twos-complement, so
                         ; just add the checksum into what we've been calculati
                         ; and if the result is zero then the record is good.
                         ;
-f4d7 : 2019f7           		jsr	getHex	;get checksum
-f4da : 18               		clc
-f4db : 6da9df           		adc	CHKL
-f4de : d0a2             		bne	loadAbort	;non-zero is error
+f4d8 : 201af7           		jsr	getHex	;get checksum
+f4db : 18               		clc
+f4dc : 6da9df           		adc	CHKL
+f4df : d0a2             		bne	loadAbort	;non-zero is error
                         ;
-f4e0 : a92e             		lda	#'.'	;sanity indicator when
-f4e2 : 20fdfa           		jsr	cout	;...loading from file
-f4e5 : 4c3ff4           		jmp	loadStart
+f4e1 : a92e             		lda	#'.'	;sanity indicator when
+f4e3 : 20fefa           		jsr	cout	;...loading from file
+f4e6 : 4c40f4           		jmp	loadStart
 AS65 Assembler for R6502 [1.42].                                     Page   13
 -------------------------------- ctmon65.asm ---------------------------------
 
@@ -786,61 +786,61 @@ f4e5 : 4c3ff4           		jmp	loadStart
                         ; Handles the command to save a region of memory as a
                         ; file on the SD.
                         ;
-f4e8 : 2077f7           saveHex		jsr	getAddrRange	;get range to dump
-f4eb : b0c8             		bcs	lExit1	;abort on error
+f4e9 : 2078f7           saveHex		jsr	getAddrRange	;get range to dump
+f4ec : b0c8             		bcs	lExit1	;abort on error
                         ;
                         ; Get the filename to save to
                         ;
-f4ed : 2060fa           		jsr	putsil
-f4f0 : 0d0a             		db	CR,LF
-f4f2 : 456e7465722066.. 		db	"Enter filename, or Enter to "
-f50e : 6c6f6164206672.. 		db	"load from console: ",0
+f4ee : 2061fa           		jsr	putsil
+f4f1 : 0d0a             		db	CR,LF
+f4f3 : 456e7465722066.. 		db	"Enter filename, or Enter to "
+f50f : 6c6f6164206672.. 		db	"load from console: ",0
                         ;
-f522 : 2016f6           		jsr	getFileName	;get filename
-f525 : ad9adf           		lda	filename	;null?
-f528 : f012             		beq	saveHexConsole	;dump to console
+f523 : 2017f6           		jsr	getFileName	;get filename
+f526 : ad9adf           		lda	filename	;null?
+f529 : f012             		beq	saveHexConsole	;dump to console
                         ;
                         ; They selected a file, so try to open it.
                         ;
-f52a : a2df             		ldx	#filename>>8
-f52c : a09a             		ldy	#filename&$ff
-f52e : 2022fc           		jsr	DiskOpenWrite	;attempt to open file
-f531 : 9003             		bcc	sopenok		;branch if opened ok
-f533 : 4cedf3           		jmp	openfail
+f52b : a2df             		ldx	#filename>>8
+f52d : a09a             		ldy	#filename&$ff
+f52f : 2023fc           		jsr	DiskOpenWrite	;attempt to open file
+f532 : 9003             		bcc	sopenok		;branch if opened ok
+f534 : 4ceef3           		jmp	openfail
                         ;
-f536 : 208ef9           sopenok		jsr	setOutputFile
-f539 : 4c3ff5           		jmp	savehex2
+f537 : 208ff9           sopenok		jsr	setOutputFile
+f53a : 4c40f5           		jmp	savehex2
                         ;
                         ; They are saving to the console.  Set up the output
                         ; vector and do the job.
                         ;
-f53c : 2083f9           saveHexConsole	jsr	setOutputConsole
+f53d : 2084f9           saveHexConsole	jsr	setOutputConsole
                         ;
                         ; Compute the number of bytes to dump
                         ;
-f53f : 38               savehex2	sec
-f540 : ad97df           		lda	EAL
-f543 : ed95df           		sbc	SAL
-f546 : 8dabdf           		sta	Temp16L
-f549 : ad98df           		lda	EAH
-f54c : ed96df           		sbc	SAH
-f54f : 8dacdf           		sta	Temp16H
-f552 : 9042             		bcc	SDone	;start > end
-f554 : 0500             		ora	0
-f556 : 303e             		bmi	SDone	;more than 32K seems wrong
+f540 : 38               savehex2	sec
+f541 : ad97df           		lda	EAL
+f544 : ed95df           		sbc	SAL
+f547 : 8dabdf           		sta	Temp16L
+f54a : ad98df           		lda	EAH
+f54d : ed96df           		sbc	SAH
+f550 : 8dacdf           		sta	Temp16H
+f553 : 9042             		bcc	SDone	;start > end
+f555 : 0500             		ora	0
+f557 : 303e             		bmi	SDone	;more than 32K seems wrong
                         ;
                         ; Add one to the count
                         ;
-f558 : eeabdf           		inc	Temp16L
-f55b : d003             		bne	slab1
-f55d : eeacdf           		inc	Temp16H
+f559 : eeabdf           		inc	Temp16L
+f55c : d003             		bne	slab1
+f55e : eeacdf           		inc	Temp16H
                         ;
                         ; Move pointer to zero page
                         ;
-f560 : ad95df           slab1		lda	SAL
-f563 : 85f0             		sta	sptr
-f565 : ad96df           		lda	SAH
-f568 : 85f1             		sta	sptr+1
+f561 : ad95df           slab1		lda	SAL
+f564 : 85f0             		sta	sptr
+f566 : ad96df           		lda	SAH
+f569 : 85f1             		sta	sptr+1
                         ;
                         ; Top of each loop.  Start by seeing if there are any 
 AS65 Assembler for R6502 [1.42].                                     Page   14
@@ -848,253 +848,253 @@ f568 : 85f1             		sta	sptr+1
 
                         ; left to dump.
                         ;
-f56a : adacdf           Sloop1		lda	Temp16H
-f56d : d02a             		bne	Sgo	;more to do
-f56f : adabdf           		lda	Temp16L
-f572 : d025             		bne	Sgo	;more to do
+f56b : adacdf           Sloop1		lda	Temp16H
+f56e : d02a             		bne	Sgo	;more to do
+f570 : adabdf           		lda	Temp16L
+f573 : d025             		bne	Sgo	;more to do
                         ;
                         ; At end of the region, so output an end record.  This
                         ; probably looks like overkill but keep in mind this
                         ; might be going to a file so we can't use the normal
                         ; string put functions.
                         ;
-f574 : a93a             		lda	#':'
-f576 : 2080f9           		jsr	redirectedOutch
-f579 : a900             		lda	#0
-f57b : 2066f9           		jsr	HexToOutput
-f57e : 2066f9           		jsr	HexToOutput
-f581 : 2066f9           		jsr	HexToOutput
-f584 : a901             		lda	#1
-f586 : 2066f9           		jsr	HexToOutput
-f589 : a9ff             		lda	#$ff
-f58b : 2066f9           		jsr	HexToOutput
+f575 : a93a             		lda	#':'
+f577 : 2081f9           		jsr	redirectedOutch
+f57a : a900             		lda	#0
+f57c : 2067f9           		jsr	HexToOutput
+f57f : 2067f9           		jsr	HexToOutput
+f582 : 2067f9           		jsr	HexToOutput
+f585 : a901             		lda	#1
+f587 : 2067f9           		jsr	HexToOutput
+f58a : a9ff             		lda	#$ff
+f58c : 2067f9           		jsr	HexToOutput
                         ;
                         ; If output to file, flush and close the file.
                         ;
-f58e : ad9adf           		lda	filename
-f591 : f003             		beq	SDone		;it's going to console
-f593 : 2051fa           		jsr	CloseOutFile
-f596 : 4cb7f0           SDone		jmp	prompt		;back to the monitor
+f58f : ad9adf           		lda	filename
+f592 : f003             		beq	SDone		;it's going to console
+f594 : 2052fa           		jsr	CloseOutFile
+f597 : 4cb7f0           SDone		jmp	prompt		;back to the monitor
                         ;
                         ; This dumps the next line.  See how many bytes are le
                         ; and if more than BYTESLINE, then just do BYTESLINE.
                         ;
-f599 : adacdf           Sgo		lda	Temp16H
-f59c : d007             		bne	Sdef	;do default number of bytes
-f59e : adabdf           		lda	Temp16L
-f5a1 : c910             		cmp	#BYTESLINE
-f5a3 : 9002             		bcc	Scnt	;more than max per line
-f5a5 : a910             Sdef		lda	#BYTESLINE
-f5a7 : 8d99df           Scnt		sta	tempA	;for decrementing
-f5aa : 8daadf           		sta	ID	;for subtracting
+f59a : adacdf           Sgo		lda	Temp16H
+f59d : d007             		bne	Sdef	;do default number of bytes
+f59f : adabdf           		lda	Temp16L
+f5a2 : c910             		cmp	#BYTESLINE
+f5a4 : 9002             		bcc	Scnt	;more than max per line
+f5a6 : a910             Sdef		lda	#BYTESLINE
+f5a8 : 8d99df           Scnt		sta	tempA	;for decrementing
+f5ab : 8daadf           		sta	ID	;for subtracting
                         ;
                         ; Put out the header
                         ;
-f5ad : a93a             		lda	#':'
-f5af : 2080f9           		jsr	redirectedOutch
+f5ae : a93a             		lda	#':'
+f5b0 : 2081f9           		jsr	redirectedOutch
                         ;
-f5b2 : ad99df           		lda	tempA
-f5b5 : 8da9df           		sta	CHKL	;start checksum
-f5b8 : 2066f9           		jsr	HexToOutput
+f5b3 : ad99df           		lda	tempA
+f5b6 : 8da9df           		sta	CHKL	;start checksum
+f5b9 : 2067f9           		jsr	HexToOutput
                         ;
-f5bb : a5f1             		lda	sptr+1	;starting address
-f5bd : 205cf9           		jsr	updateCrc
-f5c0 : 2066f9           		jsr	HexToOutput
-f5c3 : a5f0             		lda	sptr
-f5c5 : 205cf9           		jsr	updateCrc
-f5c8 : 2066f9           		jsr	HexToOutput
+f5bc : a5f1             		lda	sptr+1	;starting address
+f5be : 205df9           		jsr	updateCrc
+f5c1 : 2067f9           		jsr	HexToOutput
+f5c4 : a5f0             		lda	sptr
+f5c6 : 205df9           		jsr	updateCrc
+f5c9 : 2067f9           		jsr	HexToOutput
                         ;
-f5cb : a900             		lda	#0	;record type - data
-f5cd : 2066f9           		jsr	HexToOutput
+f5cc : a900             		lda	#0	;record type - data
+f5ce : 2067f9           		jsr	HexToOutput
                         ;
                         ; Now print the proper number of bytes
 AS65 Assembler for R6502 [1.42].                                     Page   15
 -------------------------------- ctmon65.asm ---------------------------------
 
                         ;
-f5d0 : a000             Sloop2		ldy	#0
-f5d2 : b1f0             		lda	(sptr),y	;get byte
-f5d4 : 205cf9           		jsr	updateCrc
-f5d7 : 2066f9           		jsr	HexToOutput
-f5da : 2002f9           		jsr	INCPT	;increment pointer
+f5d1 : a000             Sloop2		ldy	#0
+f5d3 : b1f0             		lda	(sptr),y	;get byte
+f5d5 : 205df9           		jsr	updateCrc
+f5d8 : 2067f9           		jsr	HexToOutput
+f5db : 2003f9           		jsr	INCPT	;increment pointer
                         ;
-f5dd : ce99df           sdec		dec	tempA
-f5e0 : d0ee             		bne	Sloop2
+f5de : ce99df           sdec		dec	tempA
+f5e1 : d0ee             		bne	Sloop2
                         ;
                         ; Now print checksum
                         ;
-f5e2 : ada9df           		lda	CHKL
-f5e5 : 49ff             		eor	#$ff	;one's complement
-f5e7 : 18               		clc
-f5e8 : 6901             		adc	#1	;two's complement
-f5ea : 2066f9           		jsr	HexToOutput
+f5e3 : ada9df           		lda	CHKL
+f5e6 : 49ff             		eor	#$ff	;one's complement
+f5e8 : 18               		clc
+f5e9 : 6901             		adc	#1	;two's complement
+f5eb : 2067f9           		jsr	HexToOutput
                         ;
                         ; Output a CR/LF
                         ;
-f5ed : a90d             		lda	#CR
-f5ef : 2080f9           		jsr	redirectedOutch
-f5f2 : a90a             		lda	#LF
-f5f4 : 2080f9           		jsr	redirectedOutch
+f5ee : a90d             		lda	#CR
+f5f0 : 2081f9           		jsr	redirectedOutch
+f5f3 : a90a             		lda	#LF
+f5f5 : 2081f9           		jsr	redirectedOutch
                         ;
                         ; If saving to disk, output a dot to indicate progress
                         ;
-f5f7 : ad9adf           		lda	filename
-f5fa : f005             		beq	shf2
+f5f8 : ad9adf           		lda	filename
+f5fb : f005             		beq	shf2
                         ;
-f5fc : a92e             		lda	#'.'
-f5fe : 20fdfa           		jsr	cout	;goes to console
+f5fd : a92e             		lda	#'.'
+f5ff : 20fefa           		jsr	cout	;goes to console
                         ;
-f601 : 38               shf2		sec
-f602 : adabdf           		lda	Temp16L
-f605 : edaadf           		sbc	ID
-f608 : 8dabdf           		sta	Temp16L
-f60b : adacdf           		lda	Temp16H
-f60e : e900             		sbc	#0
-f610 : 8dacdf           		sta	Temp16H
+f602 : 38               shf2		sec
+f603 : adabdf           		lda	Temp16L
+f606 : edaadf           		sbc	ID
+f609 : 8dabdf           		sta	Temp16L
+f60c : adacdf           		lda	Temp16H
+f60f : e900             		sbc	#0
+f611 : 8dacdf           		sta	Temp16H
                         ;
-f613 : 4c6af5           		jmp	Sloop1
+f614 : 4c6bf5           		jmp	Sloop1
                         ;
                         ;=====================================================
                         ; Get a disk filename.
                         ;
-f616 : a200             getFileName	ldx	#0
-f618 : 200afb           getFilename1	jsr	cin	;get next key
-f61b : c90d             		cmp	#CR	;end of the input?
-f61d : f027             		beq	getFnDone
-f61f : c908             		cmp	#BS	;backspace?
-f621 : f00d             		beq	getFnDel
-f623 : e00c             		cpx	#FILENAME_SIZE	;check size
-f625 : f0f1             		beq	getFilename1	;at length limit
-f627 : 9d9adf           		sta	filename,x	;else save it
-f62a : 20fdfa           		jsr	cout
-f62d : e8               		inx
-f62e : d0e8             		bne	getFilename1
+f617 : a200             getFileName	ldx	#0
+f619 : 200bfb           getFilename1	jsr	cin	;get next key
+f61c : c90d             		cmp	#CR	;end of the input?
+f61e : f027             		beq	getFnDone
+f620 : c908             		cmp	#BS	;backspace?
+f622 : f00d             		beq	getFnDel
+f624 : e00c             		cpx	#FILENAME_SIZE	;check size
+f626 : f0f1             		beq	getFilename1	;at length limit
+f628 : 9d9adf           		sta	filename,x	;else save it
+f62b : 20fefa           		jsr	cout
+f62e : e8               		inx
+f62f : d0e8             		bne	getFilename1
                         ;
-f630 : ca               getFnDel	dex
-f631 : 3010             		bmi	getFnU	;no charac here
-f633 : a908             		lda	#BS
+f631 : ca               getFnDel	dex
+f632 : 3010             		bmi	getFnU	;no charac here
+f634 : a908             		lda	#BS
 AS65 Assembler for R6502 [1.42].                                     Page   16
 -------------------------------- ctmon65.asm ---------------------------------
 
-f635 : 20fdfa           		jsr	cout
-f638 : a920             		lda	#' '
-f63a : 20fdfa           		jsr	cout
-f63d : a908             		lda	#BS
-f63f : 20fdfa           		jsr	cout
-f642 : ca               		dex
-f643 : e8               getFnU		inx		;can't go past start
-f644 : 10d2             		bpl	getFilename1
-f646 : a900             getFnDone       lda	#0	;terminate line
-f648 : 9d9adf           		sta	filename,x
-f64b : 4cd6fa           		jmp	crlf
+f636 : 20fefa           		jsr	cout
+f639 : a920             		lda	#' '
+f63b : 20fefa           		jsr	cout
+f63e : a908             		lda	#BS
+f640 : 20fefa           		jsr	cout
+f643 : ca               		dex
+f644 : e8               getFnU		inx		;can't go past start
+f645 : 10d2             		bpl	getFilename1
+f647 : a900             getFnDone       lda	#0	;terminate line
+f649 : 9d9adf           		sta	filename,x
+f64c : 4cd7fa           		jmp	crlf
                         ;
                         ;=====================================================
                         ; Add the byte in A to the output buffer.  If the
                         ; buffer is full, flush it to disk.
                         ;
-f64e : aea7df           putNextFileByte	ldx	diskBufOffset
-f651 : e084             		cpx	#BUFFER_SIZE	;buffer full?
-f653 : d00d             		bne	pNFB		;no
+f64f : aea7df           putNextFileByte	ldx	diskBufOffset
+f652 : e084             		cpx	#BUFFER_SIZE	;buffer full?
+f654 : d00d             		bne	pNFB		;no
                         ;
                         ; The buffer is full, so write it out.
                         ;
-f655 : 48               		pha			;save byte
-f656 : a984             		lda	#BUFFER_SIZE
-f658 : a2df             		ldx	#buffer>>8
-f65a : a00a             		ldy	#buffer&$ff
-f65c : 2059fc           		jsr	DiskWrite
+f656 : 48               		pha			;save byte
+f657 : a984             		lda	#BUFFER_SIZE
+f659 : a2df             		ldx	#buffer>>8
+f65b : a00a             		ldy	#buffer&$ff
+f65d : 205afc           		jsr	DiskWrite
                         ;
-f65f : a200             		ldx	#0		;reset index
-f661 : 68               		pla
-f662 : 9d0adf           pNFB		sta	buffer,x
-f665 : e8               		inx
-f666 : 8ea7df           		stx	diskBufOffset
-f669 : 60               		rts
+f660 : a200             		ldx	#0		;reset index
+f662 : 68               		pla
+f663 : 9d0adf           pNFB		sta	buffer,x
+f666 : e8               		inx
+f667 : 8ea7df           		stx	diskBufOffset
+f66a : 60               		rts
                         ;
                         ;*****************************************************
                         ; Dump the current registers based on values in the Sa
                         ; locations.
                         ;
-f66a : 2060fa           DumpRegisters	jsr	putsil
-f66d : 50433a00         		db	"PC:",0
-f671 : ad92df           		lda	SavePC+1
-f674 : 20b9fa           		jsr	HexA
-f677 : ad91df           		lda	SavePC
-f67a : 20b9fa           		jsr	HexA
+f66b : 2061fa           DumpRegisters	jsr	putsil
+f66e : 50433a00         		db	"PC:",0
+f672 : ad92df           		lda	SavePC+1
+f675 : 20bafa           		jsr	HexA
+f678 : ad91df           		lda	SavePC
+f67b : 20bafa           		jsr	HexA
                         ;
-f67d : 2060fa           		jsr	putsil
-f680 : 20413a00         		db	" A:",0
-f684 : ad8edf           		lda	SaveA
-f687 : 20b9fa           		jsr	HexA
+f67e : 2061fa           		jsr	putsil
+f681 : 20413a00         		db	" A:",0
+f685 : ad8edf           		lda	SaveA
+f688 : 20bafa           		jsr	HexA
                         ;
-f68a : 2060fa           		jsr	putsil
-f68d : 20583a00         		db	" X:",0
-f691 : ad8fdf           		lda	SaveX
-f694 : 20b9fa           		jsr	HexA
+f68b : 2061fa           		jsr	putsil
+f68e : 20583a00         		db	" X:",0
+f692 : ad8fdf           		lda	SaveX
+f695 : 20bafa           		jsr	HexA
                         ;
-f697 : 2060fa           		jsr	putsil
-f69a : 20593a00         		db	" Y:",0
-f69e : ad90df           		lda	SaveY
-f6a1 : 20b9fa           		jsr	HexA
+f698 : 2061fa           		jsr	putsil
+f69b : 20593a00         		db	" Y:",0
+f69f : ad90df           		lda	SaveY
+f6a2 : 20bafa           		jsr	HexA
                         ;
-f6a4 : 2060fa           		jsr	putsil
+f6a5 : 2061fa           		jsr	putsil
 AS65 Assembler for R6502 [1.42].                                     Page   17
 -------------------------------- ctmon65.asm ---------------------------------
 
-f6a7 : 2053503a00       		db	" SP:",0
-f6ac : ad94df           		lda	SaveSP
-f6af : 20b9fa           		jsr	HexA
+f6a8 : 2053503a00       		db	" SP:",0
+f6ad : ad94df           		lda	SaveSP
+f6b0 : 20bafa           		jsr	HexA
                         ;
                         ; Last is the condition register.  For this, print the
                         ; actual flags.  Lower case for clear, upper for set.
                         ;
-f6b2 : 2060fa           		jsr	putsil
-f6b5 : 20466c6167733a00 		db	" Flags:",0
+f6b3 : 2061fa           		jsr	putsil
+f6b6 : 20466c6167733a00 		db	" Flags:",0
                         	if	FULL_STATUS
                         ;
                         ; N - bit 7
                         ;
-f6bd : a980             		lda	#$80	;bit to test
-f6bf : a24e             		ldx	#'N'	;set ACII char
-f6c1 : 20f0f6           		jsr	testbit
+f6be : a980             		lda	#$80	;bit to test
+f6c0 : a24e             		ldx	#'N'	;set ACII char
+f6c2 : 20f1f6           		jsr	testbit
                         ;
                         ; V - bit 6
                         ;
-f6c4 : a940             		lda	#$40	;bit to test
-f6c6 : a256             		ldx	#'V'	;set ACII char
-f6c8 : 20f0f6           		jsr	testbit
+f6c5 : a940             		lda	#$40	;bit to test
+f6c7 : a256             		ldx	#'V'	;set ACII char
+f6c9 : 20f1f6           		jsr	testbit
                         ;
-f6cb : a92d             		lda	#'-'	;unused bit
-f6cd : 20fdfa           		jsr	cout
+f6cc : a92d             		lda	#'-'	;unused bit
+f6ce : 20fefa           		jsr	cout
                         ;
                         ; B - bit 4
                         ;
-f6d0 : a910             		lda	#$10	;bit to test
-f6d2 : a242             		ldx	#'B'	;set ACII char
-f6d4 : 20f0f6           		jsr	testbit
+f6d1 : a910             		lda	#$10	;bit to test
+f6d3 : a242             		ldx	#'B'	;set ACII char
+f6d5 : 20f1f6           		jsr	testbit
                         ;
                         ; D - bit 3
                         ;
-f6d7 : a908             		lda	#$08	;bit to test
-f6d9 : a244             		ldx	#'D'	;set ACII char
-f6db : 20f0f6           		jsr	testbit
+f6d8 : a908             		lda	#$08	;bit to test
+f6da : a244             		ldx	#'D'	;set ACII char
+f6dc : 20f1f6           		jsr	testbit
                         ;
                         ; I - bit 2
                         ;
-f6de : a904             		lda	#$04	;bit to test
-f6e0 : a249             		ldx	#'I'	;set ACII char
-f6e2 : 20f0f6           		jsr	testbit
+f6df : a904             		lda	#$04	;bit to test
+f6e1 : a249             		ldx	#'I'	;set ACII char
+f6e3 : 20f1f6           		jsr	testbit
                         ;
                         ; Z - bit 1
                         ;
-f6e5 : a902             		lda	#$02	;bit to test
-f6e7 : a25a             		ldx	#'Z'	;set ACII char
-f6e9 : 20f0f6           		jsr	testbit
+f6e6 : a902             		lda	#$02	;bit to test
+f6e8 : a25a             		ldx	#'Z'	;set ACII char
+f6ea : 20f1f6           		jsr	testbit
                         ;
                         ; C - bit 0
                         ;
-f6ec : a901             		lda	#$01	;bit to test
-f6ee : a243             		ldx	#'C'	;set ACII char
+f6ed : a901             		lda	#$01	;bit to test
+f6ef : a243             		ldx	#'C'	;set ACII char
                         ;
                         ; Fall through...
                         ;
@@ -1106,13 +1106,13 @@ f6ee : a243             		ldx	#'C'	;set ACII char
 AS65 Assembler for R6502 [1.42].                                     Page   18
 -------------------------------- ctmon65.asm ---------------------------------
 
-f6f0 : 2d93df           testbit		and	SaveC	;is bit set?
-f6f3 : d006             		bne	testbit1	;yes
-f6f5 : 8a               		txa
-f6f6 : 0920             		ora	#$20	;make lower case
-f6f8 : 4cfdfa           		jmp	cout
-f6fb : 8a               testbit1	txa
-f6fc : 4cfdfa           		jmp	cout
+f6f1 : 2d93df           testbit		and	SaveC	;is bit set?
+f6f4 : d006             		bne	testbit1	;yes
+f6f6 : 8a               		txa
+f6f7 : 0920             		ora	#$20	;make lower case
+f6f9 : 4cfefa           		jmp	cout
+f6fc : 8a               testbit1	txa
+f6fd : 4cfefa           		jmp	cout
                         	else
                         		lda	SaveSP
                         		jmp	HexA
@@ -1122,19 +1122,19 @@ f6fc : 4cfdfa           		jmp	cout
                         ; This continues executing from the last saved state,
                         ; such as from a call to DefaultNMI.
                         ;
-f6ff :                  doContinue
-f6ff : ae94df           		ldx	SaveSP
-f702 : 9a               		txs
-f703 : ad92df           		lda	SavePC+1
-f706 : 48               		pha
-f707 : ad91df           		lda	SavePC
-f70a : 48               		pha
-f70b : ad93df           		lda	SaveC
-f70e : 48               		pha
-f70f : ae8fdf           		ldx	SaveX
-f712 : ac90df           		ldy	SaveY
-f715 : ad8edf           		lda	SaveA
-f718 : 40               		rti
+f700 :                  doContinue
+f700 : ae94df           		ldx	SaveSP
+f703 : 9a               		txs
+f704 : ad92df           		lda	SavePC+1
+f707 : 48               		pha
+f708 : ad91df           		lda	SavePC
+f70b : 48               		pha
+f70c : ad93df           		lda	SaveC
+f70f : 48               		pha
+f710 : ae8fdf           		ldx	SaveX
+f713 : ac90df           		ldy	SaveY
+f716 : ad8edf           		lda	SaveA
+f719 : 40               		rti
                         ;
                         ;=====================================================
                         ; This gets two hex characters and returns the value
@@ -1142,101 +1142,101 @@ f718 : 40               		rti
                         ; entered, then A contans the offending character and
                         ; carry is set.
                         ;
-f719 : 2031f7           getHex		jsr	getNibble
-f71c : b020             		bcs	getNibBad
-f71e : 0a               		asl	a
+f71a : 2032f7           getHex		jsr	getNibble
+f71d : b020             		bcs	getNibBad
 f71f : 0a               		asl	a
 f720 : 0a               		asl	a
 f721 : 0a               		asl	a
-f722 : 29f0             		and	#$f0
-f724 : 8d99df           		sta	tempA
-f727 : 2031f7           		jsr	getNibble
-f72a : b012             		bcs	getNibBad
-f72c : 0d99df           		ora	tempA
-f72f : 18               		clc
-f730 : 60               		rts
+f722 : 0a               		asl	a
+f723 : 29f0             		and	#$f0
+f725 : 8d99df           		sta	tempA
+f728 : 2032f7           		jsr	getNibble
+f72b : b012             		bcs	getNibBad
+f72d : 0d99df           		ora	tempA
+f730 : 18               		clc
+f731 : 60               		rts
                         ;
                         ; Helper.  Gets next input char and converts to a
                         ; value from 0-F in A and returns C clear.  If not a
                         ; valid hex character, return C set.
                         ;
-f731 : 20c5f9           getNibble	jsr	redirectedGetch
-f734 : a20f             		ldx	#nibbleHexEnd-nibbleHex-1
-f736 : dd43f7           getNibble1	cmp	nibbleHex,x
-f739 : f005             		beq	getNibF	;got match
-f73b : ca               		dex
-f73c : 10f8             		bpl	getNibble1
-f73e : 38               getNibBad	sec
-f73f : 60               		rts
+f732 : 20c6f9           getNibble	jsr	redirectedGetch
+f735 : a20f             		ldx	#nibbleHexEnd-nibbleHex-1
+f737 : dd44f7           getNibble1	cmp	nibbleHex,x
+f73a : f005             		beq	getNibF	;got match
+f73c : ca               		dex
+f73d : 10f8             		bpl	getNibble1
+f73f : 38               getNibBad	sec
+f740 : 60               		rts
 AS65 Assembler for R6502 [1.42].                                     Page   19
 -------------------------------- ctmon65.asm ---------------------------------
 
                         
-f740 : 8a               getNibF		txa		;index is value
-f741 : 18               		clc
-f742 : 60               		rts
+f741 : 8a               getNibF		txa		;index is value
+f742 : 18               		clc
+f743 : 60               		rts
                         ;
-f743 : 30313233343536.. nibbleHex	db	"0123456789ABCDEF"
-f753 =                  nibbleHexEnd	equ	*
+f744 : 30313233343536.. nibbleHex	db	"0123456789ABCDEF"
+f754 =                  nibbleHexEnd	equ	*
                         ;
                         ;=====================================================
                         ; Gets a four digit hex address amd places it in
                         ; SAL and SAH.  Returns C clear if all is well, or C
                         ; set on error and A contains the character.
                         ;
-f753 : 2019f7           getStartAddr	jsr	getHex
-f756 : b00c             		bcs	getDone
-f758 : 8d96df           		sta	SAH
-f75b : 2019f7           		jsr	getHex
-f75e : b004             		bcs	getDone
-f760 : 8d95df           		sta	SAL
-f763 : 18               		clc
-f764 : 60               getDone		rts
+f754 : 201af7           getStartAddr	jsr	getHex
+f757 : b00c             		bcs	getDone
+f759 : 8d96df           		sta	SAH
+f75c : 201af7           		jsr	getHex
+f75f : b004             		bcs	getDone
+f761 : 8d95df           		sta	SAL
+f764 : 18               		clc
+f765 : 60               getDone		rts
                         ;
                         ;=====================================================
                         ; Gets a four digit hex address and places it in
                         ; EAL and EAH.  Returns C clear if all is well, or C
                         ; set on error and A contains the character.
                         ;
-f765 : 2019f7           getEndAddr	jsr	getHex
-f768 : b0fa             		bcs	getDone
-f76a : 8d98df           		sta	EAH
-f76d : 2019f7           		jsr	getHex
-f770 : b0f2             		bcs	getDone
-f772 : 8d97df           		sta	EAL
-f775 : 18               		clc
-f776 : 60               		rts
+f766 : 201af7           getEndAddr	jsr	getHex
+f769 : b0fa             		bcs	getDone
+f76b : 8d98df           		sta	EAH
+f76e : 201af7           		jsr	getHex
+f771 : b0f2             		bcs	getDone
+f773 : 8d97df           		sta	EAL
+f776 : 18               		clc
+f777 : 60               		rts
                         ;
                         ;=====================================================
                         ; Get an address range and leave them in SAL and EAL.
                         ;
-f777 : 2060fa           getAddrRange	jsr	putsil
-f77a : 53746172743a2000 		db	"Start: ",0
-f782 : 2053f7           		jsr	getStartAddr
-f785 : b0dd             		bcs	getDone
-f787 : 2060fa           		jsr	putsil
-f78a : 2c20456e643a2000 		db	", End: ",0
-f792 : 2065f7           		jsr	getEndAddr
-f795 : 60               		rts
+f778 : 2061fa           getAddrRange	jsr	putsil
+f77b : 53746172743a2000 		db	"Start: ",0
+f783 : 2054f7           		jsr	getStartAddr
+f786 : b0dd             		bcs	getDone
+f788 : 2061fa           		jsr	putsil
+f78b : 2c20456e643a2000 		db	", End: ",0
+f793 : 2066f7           		jsr	getEndAddr
+f796 : 60               		rts
                         ;
                         ;=====================================================
                         ; Command handler for the ? command
                         ;
-f796 : 2060fa           showHelp	jsr	putsil
-f799 : 0d0a             		db	CR,LF
-f79b : 417661696c6162.. 		db	"Available commands:"
-f7ae : 0d0a0a00         		db	CR,LF,LF,0
+f797 : 2061fa           showHelp	jsr	putsil
+f79a : 0d0a             		db	CR,LF
+f79c : 417661696c6162.. 		db	"Available commands:"
+f7af : 0d0a0a00         		db	CR,LF,LF,0
                         ;
                         ; Print help for built-in commands...
                         ;
-f7b2 : a9f3             		lda	#commandTable&$ff
-f7b4 : 85f0             		sta	sptr
-f7b6 : a9f0             		lda	#commandTable/256
-f7b8 : 85f1             		sta	sptr+1
+f7b3 : a9f3             		lda	#commandTable&$ff
+f7b5 : 85f0             		sta	sptr
+f7b7 : a9f0             		lda	#commandTable/256
+f7b9 : 85f1             		sta	sptr+1
 AS65 Assembler for R6502 [1.42].                                     Page   20
 -------------------------------- ctmon65.asm ---------------------------------
 
-f7ba : 20c0f7           		jsr	displayHelp	;display help
+f7bb : 20c1f7           		jsr	displayHelp	;display help
                         ;
                         ; Now print help for the extension commands...
                         ;
@@ -1248,36 +1248,36 @@ f7ba : 20c0f7           		jsr	displayHelp	;display help
                         		jsr	displayHelp
                         		jsr	crlf
                         	endif
-f7bd : 4cb7f0           		jmp	prompt
+f7be : 4cb7f0           		jmp	prompt
                         ;
                         ;=====================================================
                         ; Given a pointer to a command table in POINT, display
                         ; the help text for all commands in the table.
                         ;
-f7c0 : a000             displayHelp	ldy	#0	;index into command table
-f7c2 : b1f0             showHelpLoop	lda	(sptr),y	;get command
-f7c4 : f01c             		beq	showHelpDone	;jump if at end
+f7c1 : a000             displayHelp	ldy	#0	;index into command table
+f7c3 : b1f0             showHelpLoop	lda	(sptr),y	;get command
+f7c5 : f01c             		beq	showHelpDone	;jump if at end
                         ;
                         ; Display this entry's descriptive text
                         ;
-f7c6 : c8               		iny		;skip over command
-f7c7 : c8               		iny		;skip over function ptr
-f7c8 : c8               		iny
-f7c9 : b1f0             		lda	(sptr),y
-f7cb : 85f2             		sta	INL
-f7cd : c8               		iny
-f7ce : b1f0             		lda	(sptr),y
-f7d0 : 85f3             		sta	INH
-f7d2 : 98               		tya
-f7d3 : 48               		pha
-f7d4 : 20e6fa           		jsr	space2
-f7d7 : 2083fa           		jsr	puts	;print description
-f7da : 20d6fa           		jsr	crlf
-f7dd : 68               		pla
-f7de : a8               		tay
-f7df : c8               		iny		;point to next entry
-f7e0 : d0e0             		bne	showHelpLoop
-f7e2 : 60               showHelpDone	rts
+f7c7 : c8               		iny		;skip over command
+f7c8 : c8               		iny		;skip over function ptr
+f7c9 : c8               		iny
+f7ca : b1f0             		lda	(sptr),y
+f7cc : 85f2             		sta	INL
+f7ce : c8               		iny
+f7cf : b1f0             		lda	(sptr),y
+f7d1 : 85f3             		sta	INH
+f7d3 : 98               		tya
+f7d4 : 48               		pha
+f7d5 : 20e7fa           		jsr	space2
+f7d8 : 2084fa           		jsr	puts	;print description
+f7db : 20d7fa           		jsr	crlf
+f7de : 68               		pla
+f7df : a8               		tay
+f7e0 : c8               		iny		;point to next entry
+f7e1 : d0e0             		bne	showHelpLoop
+f7e3 : 60               showHelpDone	rts
                         ;
                         ;=====================================================
                         ; This does a memory test of a region of memory.
@@ -1296,68 +1296,68 @@ df8f =                  original	equ	SaveX
 0001 =                  PATTERN_0	equ	$01
 00ba =                  PATTERN_9	equ	$ba
                         ;
-f7e3 : 200afb           memabort	jsr	cin	;eat pending key
-f7e6 : 4cb7f0           cmdRet2		jmp	prompt
+f7e4 : 200bfb           memabort	jsr	cin	;eat pending key
+f7e7 : 4cb7f0           cmdRet2		jmp	prompt
 AS65 Assembler for R6502 [1.42].                                     Page   21
 -------------------------------- ctmon65.asm ---------------------------------
 
                         ;
-f7e9 : 2060fa           memTest		jsr	putsil
-f7ec : 4d656d6f727920.. 		db	"Memory test ",0
-f7f9 : 2077f7           		jsr	getAddrRange	;get range
-f7fc : b0e8             		bcs	cmdRet2		;branch if abort
+f7ea : 2061fa           memTest		jsr	putsil
+f7ed : 4d656d6f727920.. 		db	"Memory test ",0
+f7fa : 2078f7           		jsr	getAddrRange	;get range
+f7fd : b0e8             		bcs	cmdRet2		;branch if abort
                         ;
-f7fe : 2060fa           		jsr	putsil
-f801 : 0d0a             		db	CR,LF
-f803 : 54657374696e67.. 		db	"Testing memory.  Press any key to abort"
-f82a : 00               		db	0
-f82b : a901             		lda	#PATTERN_0	;only set initial...
-f82d : 8d8edf           		sta	pattern		;..pattern once
+f7ff : 2061fa           		jsr	putsil
+f802 : 0d0a             		db	CR,LF
+f804 : 54657374696e67.. 		db	"Testing memory.  Press any key to abort"
+f82b : 00               		db	0
+f82c : a901             		lda	#PATTERN_0	;only set initial...
+f82e : 8d8edf           		sta	pattern		;..pattern once
                         ;
                         ; Start of loop.  This fills/tests one complete pass
                         ; of memory.
                         ;
-f830 : 2015fb           memTestMain	jsr	cstatus	;key pressed?
-f833 : d0ae             		bne	memabort	;branch if yes
-f835 : ad95df           		lda	SAL	;reset pointer to start
-f838 : 85f0             		sta	sptr
-f83a : ad96df           		lda	SAH
-f83d : 85f1             		sta	sptr+1
+f831 : 2016fb           memTestMain	jsr	cstatus	;key pressed?
+f834 : d0ae             		bne	memabort	;branch if yes
+f836 : ad95df           		lda	SAL	;reset pointer to start
+f839 : 85f0             		sta	sptr
+f83b : ad96df           		lda	SAH
+f83e : 85f1             		sta	sptr+1
                         ;
                         ; Fill memory with the rolling pattern until the last
                         ; location is filled.
                         ;
-f83f : a000             		ldy	#0
-f841 : ad8edf           		lda	pattern
-f844 : 8d8fdf           		sta	original
-f847 : 91f0             memTestFill	sta	(sptr),y
-f849 : c9ba             		cmp	#PATTERN_9	;at last pattern?
-f84b : d005             		bne	memFill3
-f84d : a901             		lda	#PATTERN_0	;restart pattern
-f84f : 4c57f8           		jmp	memFill4
+f840 : a000             		ldy	#0
+f842 : ad8edf           		lda	pattern
+f845 : 8d8fdf           		sta	original
+f848 : 91f0             memTestFill	sta	(sptr),y
+f84a : c9ba             		cmp	#PATTERN_9	;at last pattern?
+f84c : d005             		bne	memFill3
+f84e : a901             		lda	#PATTERN_0	;restart pattern
+f850 : 4c58f8           		jmp	memFill4
                         ;
                         ; Rotate pattern left one bit
                         ;
-f852 : 0a               memFill3	asl	a
-f853 : 9002             		bcc	memFill4	;branch if not overflow
-f855 : a9ba             		lda	#PATTERN_9	;ninth pattern
+f853 : 0a               memFill3	asl	a
+f854 : 9002             		bcc	memFill4	;branch if not overflow
+f856 : a9ba             		lda	#PATTERN_9	;ninth pattern
                         ;
                         ; The new pattern is in A.  Now see if we've reached
                         ; the end of the area to be tested.
                         ;
-f857 : 48               memFill4	pha		;save pattern
-f858 : a5f0             		lda	sptr
-f85a : cd97df           		cmp	EAL
-f85d : d007             		bne	memFill5
-f85f : a5f1             		lda	sptr+1
-f861 : cd98df           		cmp	EAH
-f864 : f007             		beq	memCheck
+f858 : 48               memFill4	pha		;save pattern
+f859 : a5f0             		lda	sptr
+f85b : cd97df           		cmp	EAL
+f85e : d007             		bne	memFill5
+f860 : a5f1             		lda	sptr+1
+f862 : cd98df           		cmp	EAH
+f865 : f007             		beq	memCheck
                         ;
                         ; Not done, so move to next address and keep going.
                         ;
-f866 : 2002f9           memFill5	jsr	INCPT
-f869 : 68               		pla		;recover pattern
-f86a : 4c47f8           		jmp	memTestFill
+f867 : 2003f9           memFill5	jsr	INCPT
+f86a : 68               		pla		;recover pattern
+f86b : 4c48f8           		jmp	memTestFill
                         ;
                         ; Okay, memory is filled, so now go back and test it.
                         ; We kept a backup copy of the initial pattern to
@@ -1367,86 +1367,86 @@ f86a : 4c47f8           		jmp	memTestFill
 -------------------------------- ctmon65.asm ---------------------------------
 
                         ;
-f86d : 68               memCheck	pla
-f86e : 8d8edf           		sta	pattern	;for next pass
-f871 : ad95df           		lda	SAL	;reset pointer to start
-f874 : 85f0             		sta	sptr
-f876 : ad96df           		lda	SAH
-f879 : 85f1             		sta	sptr+1
-f87b : ad8fdf           		lda	original	;restore initial pattern
-f87e : a000             		ldy	#0
-f880 : d1f0             memTest2	cmp	(sptr),y
-f882 : d02c             		bne	memFail
-f884 : c9ba             		cmp	#PATTERN_9
-f886 : d004             		bne	memTest3
+f86e : 68               memCheck	pla
+f86f : 8d8edf           		sta	pattern	;for next pass
+f872 : ad95df           		lda	SAL	;reset pointer to start
+f875 : 85f0             		sta	sptr
+f877 : ad96df           		lda	SAH
+f87a : 85f1             		sta	sptr+1
+f87c : ad8fdf           		lda	original	;restore initial pattern
+f87f : a000             		ldy	#0
+f881 : d1f0             memTest2	cmp	(sptr),y
+f883 : d02c             		bne	memFail
+f885 : c9ba             		cmp	#PATTERN_9
+f887 : d004             		bne	memTest3
                         ;
                         ; Time to reload the pattern
                         ;
-f888 : a901             		lda	#PATTERN_0
-f88a : d005             		bne	memTest4
+f889 : a901             		lda	#PATTERN_0
+f88b : d005             		bne	memTest4
                         ;
                         ; Rotate pattern left one bit
                         ;
-f88c : 0a               memTest3	asl	a
-f88d : 9002             		bcc	memTest4
-f88f : a9ba             		lda	#PATTERN_9
+f88d : 0a               memTest3	asl	a
+f88e : 9002             		bcc	memTest4
+f890 : a9ba             		lda	#PATTERN_9
                         ;
                         ; The new pattern is in A.
                         ;
-f891 : 48               memTest4	pha		;save pattern
-f892 : a5f0             		lda	sptr
-f894 : cd97df           		cmp	EAL
-f897 : d007             		bne	memTest5	;not at end
-f899 : a5f1             		lda	sptr+1
-f89b : cd98df           		cmp	EAH
-f89e : f007             		beq	memDone	;at end of pass
+f892 : 48               memTest4	pha		;save pattern
+f893 : a5f0             		lda	sptr
+f895 : cd97df           		cmp	EAL
+f898 : d007             		bne	memTest5	;not at end
+f89a : a5f1             		lda	sptr+1
+f89c : cd98df           		cmp	EAH
+f89f : f007             		beq	memDone	;at end of pass
                         ;
                         ; Not at end yet, so inc pointer and continue
                         ;
-f8a0 : 2002f9           memTest5	jsr	INCPT
-f8a3 : 68               		pla
-f8a4 : 4c80f8           		jmp	memTest2
+f8a1 : 2003f9           memTest5	jsr	INCPT
+f8a4 : 68               		pla
+f8a5 : 4c81f8           		jmp	memTest2
                         ;
                         ; Another pass has completed.
                         ;
-f8a7 : 68               memDone		pla
-f8a8 : a92e             		lda	#'.'
-f8aa : 20fdfa           		jsr	cout
-f8ad : 4c30f8           		jmp	memTestMain
+f8a8 : 68               memDone		pla
+f8a9 : a92e             		lda	#'.'
+f8ab : 20fefa           		jsr	cout
+f8ae : 4c31f8           		jmp	memTestMain
                         ;
                         ; Failure.  Display the failed address, the expected
                         ; value and what was actually there.
                         ;
-f8b0 : 48               memFail		pha		;save pattern for error report
-f8b1 : 2060fa           		jsr	putsil
-f8b4 : 0d0a             		db	CR,LF
-f8b6 : 4661696c757265.. 		db	"Failure at address ",0
-f8ca : a5f1             		lda	sptr+1
-f8cc : 20b9fa           		jsr	HexA
-f8cf : a5f0             		lda	sptr
-f8d1 : 20b9fa           		jsr	HexA
-f8d4 : 2060fa           		jsr	putsil
-f8d7 : 2e202045787065.. 		db	".  Expected ",0
-f8e4 : 68               		pla
+f8b1 : 48               memFail		pha		;save pattern for error report
+f8b2 : 2061fa           		jsr	putsil
+f8b5 : 0d0a             		db	CR,LF
+f8b7 : 4661696c757265.. 		db	"Failure at address ",0
+f8cb : a5f1             		lda	sptr+1
+f8cd : 20bafa           		jsr	HexA
+f8d0 : a5f0             		lda	sptr
+f8d2 : 20bafa           		jsr	HexA
+f8d5 : 2061fa           		jsr	putsil
+f8d8 : 2e202045787065.. 		db	".  Expected ",0
+f8e5 : 68               		pla
 AS65 Assembler for R6502 [1.42].                                     Page   23
 -------------------------------- ctmon65.asm ---------------------------------
 
-f8e5 : 20b9fa           		jsr	HexA
-f8e8 : 2060fa           		jsr	putsil
-f8eb : 2062757420676f.. 		db	" but got ",0
-f8f5 : a000             		ldy	#0
-f8f7 : b1f0             		lda	(sptr),y
-f8f9 : 20b9fa           		jsr	HexA
-f8fc : 20d6fa           		jsr	crlf
-f8ff : 4cb7f0           cmdRet4		jmp	prompt
+f8e6 : 20bafa           		jsr	HexA
+f8e9 : 2061fa           		jsr	putsil
+f8ec : 2062757420676f.. 		db	" but got ",0
+f8f6 : a000             		ldy	#0
+f8f8 : b1f0             		lda	(sptr),y
+f8fa : 20bafa           		jsr	HexA
+f8fd : 20d7fa           		jsr	crlf
+f900 : 4cb7f0           cmdRet4		jmp	prompt
                         ;
                         ;=====================================================
                         ; Increment sptr
                         ;
-f902 : e6f0             INCPT		inc	sptr
-f904 : d002             		bne	incpt2
-f906 : e6f1             		inc	sptr+1
-f908 : 60               incpt2		rts
+f903 : e6f0             INCPT		inc	sptr
+f905 : d002             		bne	incpt2
+f907 : e6f1             		inc	sptr+1
+f909 : 60               incpt2		rts
                         ;
                         ;=====================================================
                         ; Ping the Arduino disk controller.  This just sends t
@@ -1454,45 +1454,45 @@ f908 : 60               incpt2		rts
                         ; Not much of a test but is sufficient to prove the
                         ; link is working.
                         ;
-f909 : 2060fa           pingDisk	jsr	putsil
-f90c : 50696e672e2e2e.. 		db	"Ping... ",0
-f915 : 20a3fb           		jsr	DiskPing
-f918 : 2060fa           		jsr	putsil
-f91b : 7375636365737321 		db	"success!"
-f923 : 0d0a00           		db	CR,LF,0
-f926 : 4cb7f0           doDiskDirEnd	jmp	prompt
+f90a : 2061fa           pingDisk	jsr	putsil
+f90d : 50696e672e2e2e.. 		db	"Ping... ",0
+f916 : 20a4fb           		jsr	DiskPing
+f919 : 2061fa           		jsr	putsil
+f91c : 7375636365737321 		db	"success!"
+f924 : 0d0a00           		db	CR,LF,0
+f927 : 4cb7f0           doDiskDirEnd	jmp	prompt
                         ;
                         ;=====================================================
                         ; Do a disk directory of the SD card.
                         ;
-f929 : 2060fa           doDiskDir	jsr	putsil
-f92c : 4469736b204469.. 		db	"Disk Directory..."
-f93d : 0d0a00           		db	CR,LF,0
+f92a : 2061fa           doDiskDir	jsr	putsil
+f92d : 4469736b204469.. 		db	"Disk Directory..."
+f93e : 0d0a00           		db	CR,LF,0
                         ;		jsr	xParInit
-f940 : 20b6fb           		jsr	DiskDir
+f941 : 20b7fb           		jsr	DiskDir
                         ;
                         ; Get/Display each entry
                         ;
-f943 : a2df             doDiskDirLoop   ldx	#filename/256	;pointer to buffer
-f945 : a09a             		ldy	#filename&$ff
-f947 : 86f3             		stx	INH		;save for puts
-f949 : 84f2             		sty	INL
-f94b : 20c0fb           		jsr	DiskDirNext	;get next entry
-f94e : b0d6             		bcs	doDiskDirEnd	;carry = end of list
-f950 : 20e3fa           		jsr	space3
-f953 : 2083fa           		jsr	puts		;else print name
-f956 : 20d6fa           		jsr	crlf
-f959 : 4c43f9           		jmp	doDiskDirLoop	;do next entry
+f944 : a2df             doDiskDirLoop   ldx	#filename/256	;pointer to buffer
+f946 : a09a             		ldy	#filename&$ff
+f948 : 86f3             		stx	INH		;save for puts
+f94a : 84f2             		sty	INL
+f94c : 20c1fb           		jsr	DiskDirNext	;get next entry
+f94f : b0d6             		bcs	doDiskDirEnd	;carry = end of list
+f951 : 20e4fa           		jsr	space3
+f954 : 2084fa           		jsr	puts		;else print name
+f957 : 20d7fa           		jsr	crlf
+f95a : 4c44f9           		jmp	doDiskDirLoop	;do next entry
                         ;
                         ;=====================================================
                         ; Adds the character in A to the CRC.  Preserves A.
                         ;
-f95c : 48               updateCrc	pha
-f95d : 18               		clc
-f95e : 6da9df           		adc	CHKL
-f961 : 8da9df           		sta	CHKL
-f964 : 68               		pla
-f965 : 60               		rts
+f95d : 48               updateCrc	pha
+f95e : 18               		clc
+f95f : 6da9df           		adc	CHKL
+f962 : 8da9df           		sta	CHKL
+f965 : 68               		pla
+f966 : 60               		rts
 AS65 Assembler for R6502 [1.42].                                     Page   24
 -------------------------------- ctmon65.asm ---------------------------------
 
@@ -1501,24 +1501,24 @@ f965 : 60               		rts
                         ; Print character in A as two hex digits to the
                         ; current output device (console or file).
                         ;
-f966 : 48               HexToOutput	pha		;save return value
-f967 : 48               		pha
-f968 : 4a               		lsr	a	;move top nibble to bottom
-f969 : 4a               		lsr	a
+f967 : 48               HexToOutput	pha		;save return value
+f968 : 48               		pha
+f969 : 4a               		lsr	a	;move top nibble to bottom
 f96a : 4a               		lsr	a
 f96b : 4a               		lsr	a
-f96c : 2075f9           		jsr	hexta	;output nibble
-f96f : 68               		pla
-f970 : 2075f9           		jsr	hexta
-f973 : 68               		pla		;restore
-f974 : 60               		rts
+f96c : 4a               		lsr	a
+f96d : 2076f9           		jsr	hexta	;output nibble
+f970 : 68               		pla
+f971 : 2076f9           		jsr	hexta
+f974 : 68               		pla		;restore
+f975 : 60               		rts
                         ;
-f975 : 290f             hexta		and	#%0001111
-f977 : c90a             		cmp	#$0a
-f979 : 18               		clc
-f97a : 3002             		bmi	hexta1
-f97c : 6907             		adc	#7
-f97e : 6930             hexta1		adc	#'0'	;then fall into...
+f976 : 290f             hexta		and	#%0001111
+f978 : c90a             		cmp	#$0a
+f97a : 18               		clc
+f97b : 3002             		bmi	hexta1
+f97d : 6907             		adc	#7
+f97f : 6930             hexta1		adc	#'0'	;then fall into...
                         ;
                         ;=====================================================
                         ; This is a helper function used for redirected I/O.
@@ -1526,34 +1526,34 @@ f97e : 6930             hexta1		adc	#'0'	;then fall into...
                         ; pointer to send the character in A to the proper
                         ; device.
                         ;
-f980 : 6c08df           redirectedOutch	jmp	(outputVector)
+f981 : 6c08df           redirectedOutch	jmp	(outputVector)
                         ;
                         ;=====================================================
                         ; Set up the output vector to point to the normal
                         ; console output subroutine.
                         ;
-f983 :                  setOutputConsole
-f983 : a9fd             		lda	#cout&$ff
-f985 : 8d08df           		sta     outputVector
-f988 : a9fa             		lda	#cout/256
-f98a : 8d09df           		sta	outputVector+1
-f98d : 60               		rts
+f984 :                  setOutputConsole
+f984 : a9fe             		lda	#cout&$ff
+f986 : 8d08df           		sta     outputVector
+f989 : a9fa             		lda	#cout/256
+f98b : 8d09df           		sta	outputVector+1
+f98e : 60               		rts
                         ;
                         ;=====================================================
                         ; Set up the output vector to point to a file write
                         ; subroutine.
                         ;
-f98e : a94e             setOutputFile	lda	#putNextFileByte&$ff
-f990 : 8d08df           		sta     outputVector
-f993 : a9f6             		lda	#putNextFileByte/256
-f995 : 8d09df           		sta	outputVector+1
+f98f : a94f             setOutputFile	lda	#putNextFileByte&$ff
+f991 : 8d08df           		sta     outputVector
+f994 : a9f6             		lda	#putNextFileByte/256
+f996 : 8d09df           		sta	outputVector+1
                         ;
                         ; Clear counts and offsets so the next read will
                         ; cause the file to be read.
                         ;
-f998 : a900             		lda	#0
-f99a : 8da7df           		sta	diskBufOffset
-f99d : 60               		rts
+f999 : a900             		lda	#0
+f99b : 8da7df           		sta	diskBufOffset
+f99e : 60               		rts
                         ;
                         ;=====================================================
                         ; Set up the input vector to point to the normal
@@ -1562,81 +1562,81 @@ f99d : 60               		rts
 -------------------------------- ctmon65.asm ---------------------------------
 
                         ;
-f99e : a9a9             setInputConsole	lda	#cinecho&$ff
-f9a0 : 8d06df           		sta     inputVector
-f9a3 : a9f9             		lda	#cinecho/256
-f9a5 : 8d07df           		sta	inputVector+1
-f9a8 : 60               		rts
+f99f : a9aa             setInputConsole	lda	#cinecho&$ff
+f9a1 : 8d06df           		sta     inputVector
+f9a4 : a9f9             		lda	#cinecho/256
+f9a6 : 8d07df           		sta	inputVector+1
+f9a9 : 60               		rts
                         ;
-f9a9 : 200afb           cinecho		jsr	cin
-f9ac : 48               		pha
-f9ad : 20fdfa           		jsr	cout
-f9b0 : 68               		pla
-f9b1 : 60               		rts
+f9aa : 200bfb           cinecho		jsr	cin
+f9ad : 48               		pha
+f9ae : 20fefa           		jsr	cout
+f9b1 : 68               		pla
+f9b2 : 60               		rts
                         ;
                         ;=====================================================
                         ; Set up the input vector to point to a file read
                         ; subroutine.
                         ;
-f9b2 : a9c8             setInputFile    lda	#getNextFileByte&$ff
-f9b4 : 8d06df           		sta     inputVector
-f9b7 : a9f9             		lda	#getNextFileByte/256
-f9b9 : 8d07df           		sta	inputVector+1
+f9b3 : a9c9             setInputFile    lda	#getNextFileByte&$ff
+f9b5 : 8d06df           		sta     inputVector
+f9b8 : a9f9             		lda	#getNextFileByte/256
+f9ba : 8d07df           		sta	inputVector+1
                         ;
                         ; Clear counts and offsets so the next read will
                         ; cause the file to be read.
                         ;
-f9bc : a900             		lda	#0
-f9be : 8da7df           		sta	diskBufOffset
-f9c1 : 8da8df           		sta	diskBufLength
-f9c4 : 60               		rts
+f9bd : a900             		lda	#0
+f9bf : 8da7df           		sta	diskBufOffset
+f9c2 : 8da8df           		sta	diskBufLength
+f9c5 : 60               		rts
                         ;
                         ;=====================================================
                         ; This is a helper function used for redirected I/O.
                         ; It simply does a jump through the input vector
                         ; pointer to get the next input character.
                         ;
-f9c5 : 6c06df           redirectedGetch	jmp	(inputVector)
+f9c6 : 6c06df           redirectedGetch	jmp	(inputVector)
                         ;
                         ;=====================================================
                         ; This gets the next byte from an open disk file.  If
                         ; there are no more bytes left, this returns C set.
                         ; Else, C is clear and A contains the character.
                         ;
-f9c8 : aea7df           getNextFileByte ldx 	diskBufOffset
-f9cb : eca8df           		cpx	diskBufLength
-f9ce : d014             		bne	hasdata		;branch if still data
+f9c9 : aea7df           getNextFileByte ldx 	diskBufOffset
+f9cc : eca8df           		cpx	diskBufLength
+f9cf : d014             		bne	hasdata		;branch if still data
                         ;
                         ; There is no data left in the buffer, so read a
                         ; block from the SD system.
                         ;
-f9d0 : a984             		lda	#BUFFER_SIZE
-f9d2 : a2df             		ldx	#buffer>>8
-f9d4 : a00a             		ldy	#buffer&$ff
-f9d6 : 2027fc           		jsr	DiskRead
-f9d9 : b012             		bcs	getNextEof
+f9d1 : a984             		lda	#BUFFER_SIZE
+f9d3 : a2df             		ldx	#buffer>>8
+f9d5 : a00a             		ldy	#buffer&$ff
+f9d7 : 2028fc           		jsr	DiskRead
+f9da : b012             		bcs	getNextEof
                         ;
                         ; A contains the number of bytes actually read.
                         ;
-f9db : 8da8df           		sta	diskBufLength	;save length
-f9de : c900             		cmp	#0		;shouldn't happen
-f9e0 : f00b             		beq	getNextEof
+f9dc : 8da8df           		sta	diskBufLength	;save length
+f9df : c900             		cmp	#0		;shouldn't happen
+f9e1 : f00b             		beq	getNextEof
                         ;
-f9e2 : a200             		ldx	#0
+f9e3 : a200             		ldx	#0
 AS65 Assembler for R6502 [1.42].                                     Page   26
 -------------------------------- ctmon65.asm ---------------------------------
 
-f9e4 : bd0adf           hasdata		lda	buffer,x
-f9e7 : e8               		inx
-f9e8 : 8ea7df           		stx	diskBufOffset
-f9eb : 18               		clc
-f9ec : 60               		rts
+f9e5 : bd0adf           hasdata		lda	buffer,x
+f9e8 : e8               		inx
+f9e9 : 8ea7df           		stx	diskBufOffset
+f9ec : 18               		clc
+f9ed : 60               		rts
                         ;
-f9ed : a900             getNextEof	lda	#0
-f9ef : 8da7df           		sta	diskBufOffset
-f9f2 : 8da8df           		sta	diskBufLength
-f9f5 : 38               		sec
-f9f6 : 60               		rts
+f9ee : a900             getNextEof	lda	#0
+f9f0 : 8da7df           		sta	diskBufOffset
+f9f3 : 8da8df           		sta	diskBufLength
+f9f6 : 38               		sec
+f9f7 : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   27
 -------------------------------- ctmon65.asm ---------------------------------
@@ -1645,43 +1645,43 @@ f9f6 : 60               		rts
                         ;=====================================================
                         ; Type the contents of an SD file to console.
                         ;
-f9f7 : 2060fa           typeFile	jsr	putsil
-f9fa : 456e7465722066.. 		db	"Enter filename to type: ",0
-fa13 : 2016f6           		jsr	getFileName
-fa16 : a09a             		ldy	#filename&$ff
-fa18 : a2df             		ldx	#filename/256
+f9f8 : 2061fa           typeFile	jsr	putsil
+f9fb : 456e7465722066.. 		db	"Enter filename to type: ",0
+fa14 : 2017f6           		jsr	getFileName
+fa17 : a09a             		ldy	#filename&$ff
+fa19 : a2df             		ldx	#filename/256
                         ;		jsr	xParInit
-fa1a : 20f1fb           		jsr	DiskOpenRead
-fa1d : 901e             		bcc	typeFile1	;opened ok
+fa1b : 20f2fb           		jsr	DiskOpenRead
+fa1e : 901e             		bcc	typeFile1	;opened ok
                         ;
-fa1f : 2060fa           		jsr	putsil
-fa22 : 0d0a             		db	CR,LF
-fa24 : 4661696c656420.. 		db	"Failed to open file"
-fa37 : 0d0a00           		db	CR,LF,0
-fa3a : 4cb7f0           		jmp	prompt
+fa20 : 2061fa           		jsr	putsil
+fa23 : 0d0a             		db	CR,LF
+fa25 : 4661696c656420.. 		db	"Failed to open file"
+fa38 : 0d0a00           		db	CR,LF,0
+fa3b : 4cb7f0           		jmp	prompt
                         ;
                         ; Now just keep reading in bytes and displaying them.
                         ;
-fa3d : 20b2f9           typeFile1	jsr	setInputFile	;reading from file
-fa40 : 20c8f9           typeFileLoop	jsr	getNextFileByte
-fa43 : b006             		bcs	typeEof
-fa45 : 20fdfa           		jsr	cout	;display character
-fa48 : 4c40fa           		jmp	typeFileLoop
+fa3e : 20b3f9           typeFile1	jsr	setInputFile	;reading from file
+fa41 : 20c9f9           typeFileLoop	jsr	getNextFileByte
+fa44 : b006             		bcs	typeEof
+fa46 : 20fefa           		jsr	cout	;display character
+fa49 : 4c41fa           		jmp	typeFileLoop
                         ;
-fa4b : 2090fc           typeEof		jsr	DiskClose
-fa4e : 4cb7f0           		jmp	prompt
+fa4c : 2091fc           typeEof		jsr	DiskClose
+fa4f : 4cb7f0           		jmp	prompt
                         ;
                         ;=====================================================
                         ; This flushes any data remaining in the disk buffer
                         ; and then closes the file.
                         ;
-fa51 : ada7df           CloseOutFile	lda	diskBufOffset
-fa54 : f007             		beq	closeonly
-fa56 : a2df             		ldx	#buffer>>8
-fa58 : a00a             		ldy	#buffer&$ff
-fa5a : 2059fc           		jsr	DiskWrite
+fa52 : ada7df           CloseOutFile	lda	diskBufOffset
+fa55 : f007             		beq	closeonly
+fa57 : a2df             		ldx	#buffer>>8
+fa59 : a00a             		ldy	#buffer&$ff
+fa5b : 205afc           		jsr	DiskWrite
                         ;
-fa5d : 4c90fc           closeonly	jmp	DiskClose
+fa5e : 4c91fc           closeonly	jmp	DiskClose
                         ;
                         		include	"io.asm"
                         ;*****************************************************
@@ -1709,45 +1709,45 @@ e032 =                  argv		ds	MAX_ARGC
                         ; Taken from http://www.6502.org/source/io/primm.htm
                         ; The last example by Ross Archer.
                         ;
-fa60 : 68               putsil		pla		;Get the low part of "return" address
+fa61 : 68               putsil		pla		;Get the low part of "return" address
                         				;(data start address)
-fa61 : 85f4             		sta	putsp
-fa63 : 68               		pla
-fa64 : 85f5             		sta	putsp+1	;Get the high part of "return" address
+fa62 : 85f4             		sta	putsp
+fa64 : 68               		pla
+fa65 : 85f5             		sta	putsp+1	;Get the high part of "return" address
                         				;(data start address)
                         				;Note: actually we're pointing one short
-fa66 : a001             PSINB		ldy	#1
-fa68 : b1f4             		lda	(putsp),y	;Get the next string character
-fa6a : e6f4             		inc	putsp	;update the pointer
-fa6c : d002             		bne	PSICHO	;if not, we're pointing to next character
-fa6e : e6f5             		inc	putsp+1	;account for page crossing
-fa70 : 0900             PSICHO		ora	#0	;Set flags according to contents of
+fa67 : a001             PSINB		ldy	#1
+fa69 : b1f4             		lda	(putsp),y	;Get the next string character
+fa6b : e6f4             		inc	putsp	;update the pointer
+fa6d : d002             		bne	PSICHO	;if not, we're pointing to next character
+fa6f : e6f5             		inc	putsp+1	;account for page crossing
+fa71 : 0900             PSICHO		ora	#0	;Set flags according to contents of
                         				;   Accumulator
-fa72 : f006             		beq	PSIX1	;don't print the final NULL
-fa74 : 20fdfa           		jsr	cout	;write it out
-fa77 : 4c66fa           		jmp	PSINB	;back around
-fa7a : e6f4             PSIX1		inc	putsp
-fa7c : d002             		bne	PSIX2
-fa7e : e6f5             		inc	putsp+1	;account for page crossing
-fa80 : 6cf400           PSIX2		jmp	(putsp)	;return to byte following final NUL
+fa73 : f006             		beq	PSIX1	;don't print the final NULL
+fa75 : 20fefa           		jsr	cout	;write it out
+fa78 : 4c67fa           		jmp	PSINB	;back around
+fa7b : e6f4             PSIX1		inc	putsp
+fa7d : d002             		bne	PSIX2
+fa7f : e6f5             		inc	putsp+1	;account for page crossing
+fa81 : 6cf400           PSIX2		jmp	(putsp)	;return to byte following final NUL
                         ;
                         ;=====================================================
                         ; This prints the null terminated string pointed to by
                         ; INL and INH.  Modifies those locations to point to
                         ; the end of the string.
                         ;
-fa83 : a000             puts		ldy	#0
-fa85 : b1f2             putsy		lda	(INL),y
-fa87 : e6f2             		inc	INL
-fa89 : d002             		bne	puts1
-fa8b : e6f3             		inc	INH
-fa8d : 0900             puts1		ora	#0
-fa8f : f00c             		beq	putsdone
-fa91 : 8c90df           		sty	SaveY
-fa94 : 20fdfa           		jsr	cout	;print character
-fa97 : ac90df           		ldy	SaveY
-fa9a : 4c85fa           		jmp	putsy
-fa9d : 60               putsdone	rts
+fa84 : a000             puts		ldy	#0
+fa86 : b1f2             putsy		lda	(INL),y
+fa88 : e6f2             		inc	INL
+fa8a : d002             		bne	puts1
+fa8c : e6f3             		inc	INH
+fa8e : 0900             puts1		ora	#0
+fa90 : f00c             		beq	putsdone
+fa92 : 8c90df           		sty	SaveY
+fa95 : 20fefa           		jsr	cout	;print character
+fa98 : ac90df           		ldy	SaveY
+fa9b : 4c86fa           		jmp	putsy
+fa9e : 60               putsdone	rts
                         ;
                         ;*****************************************************
                         ; Get a line of text from the console and put it into
@@ -1757,7 +1757,7 @@ fa9d : 60               putsdone	rts
                         ; byte at the end and the length in A.  If the length 
                         ; zero, return Z set.
                         ;
-fa9e :                  getline
+fa9f :                  getline
                         	if 0
                         		ldx	#0
                         		beq	getline1
@@ -1794,26 +1794,26 @@ fa9e :                  getline
                         		sta	BUFFER,x
                         		txa		;will set/clear Z
                         	endif
-fa9e : 60               		rts
+fa9f : 60               		rts
                         ;
                         ;*****************************************************
                         ; This converts the buffer to all lower case.
                         ;
-fa9f : a200             ToLower		ldx	#0
-faa1 : bdaddf           ToLower1	lda	BUFFER,x
-faa4 : f011             		beq	ToLowerDone
+faa0 : a200             ToLower		ldx	#0
+faa2 : bdaddf           ToLower1	lda	BUFFER,x
+faa5 : f011             		beq	ToLowerDone
                         ;
-faa6 : c961             		cmp	#'a'
-faa8 : 900a             		bcc	ToLower2
-faaa : c97b             		cmp	#'z'+1
-faac : b006             		bcs	ToLower2
-faae : 18               		clc
-faaf : e920             		sbc	#$20	;convert
-fab1 : 9daddf           		sta	BUFFER,x
-fab4 : e8               ToLower2	inx
-fab5 : d0ea             		bne	ToLower1
+faa7 : c961             		cmp	#'a'
+faa9 : 900a             		bcc	ToLower2
+faab : c97b             		cmp	#'z'+1
+faad : b006             		bcs	ToLower2
+faaf : 18               		clc
+fab0 : e920             		sbc	#$20	;convert
+fab2 : 9daddf           		sta	BUFFER,x
+fab5 : e8               ToLower2	inx
+fab6 : d0ea             		bne	ToLower1
                         ;
-fab7 : 60               ToLowerDone	rts
+fab8 : 60               ToLowerDone	rts
                         ;
                         ;*****************************************************
                         ; This parses the current contents of BUFFER.  It scan
@@ -1823,7 +1823,7 @@ fab7 : 60               ToLowerDone	rts
                         ; word in argc, and has a total count in argv.  Yes, I
                         ; a C programmer.
                         ;
-fab8 :                  parse
+fab9 :                  parse
                         	if 0
                         		ldx	#0
                         		stx	argc	;clear count
@@ -1861,43 +1861,43 @@ fab8 :                  parse
                         		jmp	parse1
                         ;
                         	endif
-fab8 : 60               parse2		rts
+fab9 : 60               parse2		rts
                         ;
                         ;*****************************************************
                         ; Dump the contents of A as two hex digits.  Preserves
                         ; all registers.
                         ;
-fab9 : 48               HexA		pha		;save value
-faba : 48               		pha
-fabb : 4a               		lsr	a
+faba : 48               HexA		pha		;save value
+fabb : 48               		pha
 fabc : 4a               		lsr	a
 fabd : 4a               		lsr	a
 fabe : 4a               		lsr	a
-fabf : 20c8fa           		jsr	HexDigit
-fac2 : 68               		pla
-fac3 : 20c8fa           		jsr	HexDigit
-fac6 : 68               		pla		;restore value
-fac7 : 60               		rts
+fabf : 4a               		lsr	a
+fac0 : 20c9fa           		jsr	HexDigit
+fac3 : 68               		pla
+fac4 : 20c9fa           		jsr	HexDigit
+fac7 : 68               		pla		;restore value
+fac8 : 60               		rts
                         ;
-fac8 : 290f             HexDigit	and	#$0f
-faca : c90a             		cmp	#$0a
-facc : 18               		clc
-facd : 3002             		bmi	HexDigit1
-facf : 6907             		adc	#7
-fad1 : 6930             HexDigit1	adc	#'0'
-fad3 : 4cfdfa           		jmp	cout
+fac9 : 290f             HexDigit	and	#$0f
+facb : c90a             		cmp	#$0a
+facd : 18               		clc
+face : 3002             		bmi	HexDigit1
+fad0 : 6907             		adc	#7
+fad2 : 6930             HexDigit1	adc	#'0'
+fad4 : 4cfefa           		jmp	cout
                         ;
                         ;*****************************************************
                         ; Output a CR/LF combination to the console.  Preserve
                         ; all registers.
                         ;
-fad6 : 48               crlf		pha
-fad7 : a90d             		lda	#CR
-fad9 : 20fdfa           		jsr	cout
-fadc : a90a             		lda	#LF
-fade : 20fdfa           		jsr	cout
-fae1 : 68               		pla
-fae2 : 60               		rts
+fad7 : 48               crlf		pha
+fad8 : a90d             		lda	#CR
+fada : 20fefa           		jsr	cout
+fadd : a90a             		lda	#LF
+fadf : 20fefa           		jsr	cout
+fae2 : 68               		pla
+fae3 : 60               		rts
 AS65 Assembler for R6502 [1.42].                                     Page   31
 -------------------------------- ctmon65.asm ---------------------------------
 
@@ -1906,13 +1906,13 @@ fae2 : 60               		rts
                         ; Output one, two or three spaces.  Preserves all
                         ; register.
                         ;
-fae3 : 20e9fa           space3		jsr	space
-fae6 : 20e9fa           space2		jsr	space
-fae9 : 48               space		pha
-faea : a920             		lda	#' '
-faec : 20fdfa           		jsr	cout
-faef : 68               		pla
-faf0 : 60               		rts
+fae4 : 20eafa           space3		jsr	space
+fae7 : 20eafa           space2		jsr	space
+faea : 48               space		pha
+faeb : a920             		lda	#' '
+faed : 20fefa           		jsr	cout
+faf0 : 68               		pla
+faf1 : 60               		rts
                         
                         
                         
@@ -1930,36 +1930,36 @@ e010 =                  ACIA		equ	(CONSOLE_SLOT*IO_SIZE)+IO_BASE
                         ;*****************************************************
                         ; Initialize the ACIA
                         ;
-faf1 : a903             cinit		lda	#%00000011	;reset
-faf3 : 8d10e0           		sta	ACIA
-faf6 : ea               		nop
-faf7 : a911             		lda	#%00010001	;8N2
-faf9 : 8d10e0           		sta	ACIA
-fafc : 60               		rts
+faf2 : a903             cinit		lda	#%00000011	;reset
+faf4 : 8d10e0           		sta	ACIA
+faf7 : ea               		nop
+faf8 : a911             		lda	#%00010001	;8N2
+fafa : 8d10e0           		sta	ACIA
+fafd : 60               		rts
                         ;
                         ;*****************************************************
                         ; Output the character in A to the console.  This will
                         ; block until the character is queued.  Preserves all
                         ; registers.
                         ;
-fafd : 48               cout		pha
-fafe : ad10e0           cout1		lda	ACIA
-fb01 : 2902             		and	#TDRE
-fb03 : f0f9             		beq	cout1		;not empty
-fb05 : 68               		pla
-fb06 : 8d11e0           		sta	ACIA+1
-fb09 : 60               		rts
+fafe : 48               cout		pha
+faff : ad10e0           cout1		lda	ACIA
+fb02 : 2902             		and	#TDRE
+fb04 : f0f9             		beq	cout1		;not empty
+fb06 : 68               		pla
+fb07 : 8d11e0           		sta	ACIA+1
+fb0a : 60               		rts
                         ;
                         ;*****************************************************
                         ; Gets a character from the console and returns it in 
                         ; Modifies no other registers.  This blocks until a
                         ; character is available.
                         ;
-fb0a : ad10e0           cin		lda	ACIA
-fb0d : 2901             		and	#RDRF
-fb0f : f0f9             		beq	cin
-fb11 : ad11e0           		lda	ACIA+1
-fb14 : 60               		rts
+fb0b : ad10e0           cin		lda	ACIA
+fb0e : 2901             		and	#RDRF
+fb10 : f0f9             		beq	cin
+fb12 : ad11e0           		lda	ACIA+1
+fb15 : 60               		rts
                         ;
                         ;*****************************************************
                         ; Get the status of the console.  Returns Z set if no
@@ -1969,9 +1969,9 @@ fb14 : 60               		rts
                         ; characters are available, Z clear if a character is
                         ; ready.
                         ;
-fb15 : ad10e0           cstatus		lda	ACIA
-fb18 : 2901             		and	#RDRF
-fb1a : 60               		rts
+fb16 : ad10e0           cstatus		lda	ACIA
+fb19 : 2901             		and	#RDRF
+fb1b : 60               		rts
                         
                         	if SD_ENABLED
                         		include	"parproto.inc"
@@ -2114,17 +2114,17 @@ e063 =                  PIACTLB		equ	PIABASE+3	;control reg B
                         ; This is the initialization function.  Call before
                         ; doing anything else with the parallel port.
                         ;
-fb1b :                  xParInit
+fb1c :                  xParInit
                         ;
                         ; Set up the data direction register for port B so tha
                         ; the DIRECTION and PSTROBE bits are output.
                         ;
-fb1b : a900             		lda	#0	;select DDR
-fb1d : 8d63e0           		sta	PIACTLB	;...for port B
-fb20 : a903             		lda	#DIRECTION | PSTROBE
-fb22 : 8d62e0           		sta	PIADDRB
-fb25 : a904             		lda	#4	;select data reg
-fb27 : 8d63e0           		sta	PIACTLB
+fb1c : a900             		lda	#0	;select DDR
+fb1e : 8d63e0           		sta	PIACTLB	;...for port B
+fb21 : a903             		lda	#DIRECTION | PSTROBE
+fb23 : 8d62e0           		sta	PIADDRB
+fb26 : a904             		lda	#4	;select data reg
+fb28 : 8d63e0           		sta	PIACTLB
                         ;
                         ; Fall through to set up for writes...
                         ;
@@ -2136,18 +2136,18 @@ fb27 : 8d63e0           		sta	PIACTLB
                         ; This sets up for writing to the Arduino.  Sets up
                         ; direction registers, drives the direction bit, etc.
                         ;
-fb2a : a900             xParSetWrite	lda	#0	;select DDR
-fb2c : 8d61e0           		sta	PIACTLA	;...for port A
-fb2f : a9ff             		lda	#$ff	;set bits for output
-fb31 : 8d60e0           		sta	PIADDRA
-fb34 : a904             		lda	#4	;select data reg
-fb36 : 8d61e0           		sta	PIACTLA
+fb2b : a900             xParSetWrite	lda	#0	;select DDR
+fb2d : 8d61e0           		sta	PIACTLA	;...for port A
+fb30 : a9ff             		lda	#$ff	;set bits for output
+fb32 : 8d60e0           		sta	PIADDRA
+fb35 : a904             		lda	#4	;select data reg
+fb37 : 8d61e0           		sta	PIACTLA
                         ;
                         ; Set direction flag to output, clear ACK bit
                         ;
-fb39 : a901             		lda	#DIRECTION
-fb3b : 8d62e0           		sta	PIAREGB
-fb3e : 60               		rts
+fb3a : a901             		lda	#DIRECTION
+fb3c : 8d62e0           		sta	PIAREGB
+fb3f : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   37
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2156,18 +2156,18 @@ fb3e : 60               		rts
                         ; This sets up for reading from the Arduino.  Sets up
                         ; direction registers, clears the direction bit, etc.
                         ;
-fb3f : a900             xParSetRead	lda	#0	;select DDR
-fb41 : 8d61e0           		sta	PIACTLA	;...for port A
-fb44 : a900             		lda	#$00	;set bits for input
-fb46 : 8d60e0           		sta	PIADDRA
-fb49 : a904             		lda	#4	;select data reg
-fb4b : 8d61e0           		sta	PIACTLA
+fb40 : a900             xParSetRead	lda	#0	;select DDR
+fb42 : 8d61e0           		sta	PIACTLA	;...for port A
+fb45 : a900             		lda	#$00	;set bits for input
+fb47 : 8d60e0           		sta	PIADDRA
+fb4a : a904             		lda	#4	;select data reg
+fb4c : 8d61e0           		sta	PIACTLA
                         ;
                         ; Set direction flag to input, clear ACK bit
                         ;
-fb4e : a900             		lda	#0
-fb50 : 8d62e0           		sta	PIAREGB
-fb53 : 60               		rts
+fb4f : a900             		lda	#0
+fb51 : 8d62e0           		sta	PIAREGB
+fb54 : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   38
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2191,40 +2191,40 @@ fb53 : 60               		rts
                         ;    6. Wait for ACK to go low, indicating end of
                         ;       transfer.
                         ;
-fb54 : 48               xParWriteByte	pha		;save data
-fb55 : ad62e0           Parwl22		lda	PIAREGB	;check status
-fb58 : 2904             		and	#ACK
-fb5a : d0f9             		bne	Parwl22	;wait for ACK to go low
+fb55 : 48               xParWriteByte	pha		;save data
+fb56 : ad62e0           Parwl22		lda	PIAREGB	;check status
+fb59 : 2904             		and	#ACK
+fb5b : d0f9             		bne	Parwl22	;wait for ACK to go low
                         ;
                         ; Now put the data onto the bus
                         ;
-fb5c : 68               		pla
-fb5d : 8d60e0           		sta	PIAREGA
+fb5d : 68               		pla
+fb5e : 8d60e0           		sta	PIAREGA
                         ;
                         ; Raise the strobe so the Arduino knows there is
                         ; new data.
                         ;
-fb60 : ad62e0           		lda	PIAREGB
-fb63 : 0902             		ora	#PSTROBE
-fb65 : 8d62e0           		sta	PIAREGB
+fb61 : ad62e0           		lda	PIAREGB
+fb64 : 0902             		ora	#PSTROBE
+fb66 : 8d62e0           		sta	PIAREGB
                         ;
                         ; Wait for ACK to go high, indicating the Arduino has
                         ; pulled the data and is ready for more.
                         ;
-fb68 : ad62e0           Parwl33		lda	PIAREGB
-fb6b : 2904             		and	#ACK
-fb6d : f0f9             		beq	Parwl33
+fb69 : ad62e0           Parwl33		lda	PIAREGB
+fb6c : 2904             		and	#ACK
+fb6e : f0f9             		beq	Parwl33
                         ;
                         ; Now lower the strobe, then wait for the Arduino to
                         ; lower ACK.
                         ;
-fb6f : ad62e0           		lda	PIAREGB
-fb72 : 29fd             		and	#~PSTROBE
-fb74 : 8d62e0           		sta	PIAREGB
-fb77 : ad62e0           Parwl44		lda	PIAREGB
-fb7a : 2904             		and	#ACK
-fb7c : d0f9             		bne	Parwl44
-fb7e : 60               		rts
+fb70 : ad62e0           		lda	PIAREGB
+fb73 : 29fd             		and	#~PSTROBE
+fb75 : 8d62e0           		sta	PIAREGB
+fb78 : ad62e0           Parwl44		lda	PIAREGB
+fb7b : 2904             		and	#ACK
+fb7d : d0f9             		bne	Parwl44
+fb7f : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   39
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2246,32 +2246,32 @@ fb7e : 60               		rts
                         ;    4. Wait for ACK to go low.
                         ;    5. Lower PSTROBE.
                         ;
-fb7f : ad62e0           xParReadByte	lda	PIAREGB
-fb82 : 2904             		and	#ACK	;is their strobe high?
-fb84 : f0f9             		beq	xParReadByte	;nope, no data
+fb80 : ad62e0           xParReadByte	lda	PIAREGB
+fb83 : 2904             		and	#ACK	;is their strobe high?
+fb85 : f0f9             		beq	xParReadByte	;nope, no data
                         ;
                         ; Data is available, so grab and save it.
                         ;
-fb86 : ad60e0           		lda	PIAREGA
-fb89 : 48               		pha
+fb87 : ad60e0           		lda	PIAREGA
+fb8a : 48               		pha
                         ;
                         ; Now raise our strobe (their ACK), then wait for
                         ; them to lower their strobe.
                         ;
-fb8a : ad62e0           		lda	PIAREGB
-fb8d : 0902             		ora	#PSTROBE
-fb8f : 8d62e0           		sta	PIAREGB
-fb92 : ad62e0           Parrlp1		lda	PIAREGB
-fb95 : 2904             		and	#ACK
-fb97 : d0f9             		bne	Parrlp1	;still active
+fb8b : ad62e0           		lda	PIAREGB
+fb8e : 0902             		ora	#PSTROBE
+fb90 : 8d62e0           		sta	PIAREGB
+fb93 : ad62e0           Parrlp1		lda	PIAREGB
+fb96 : 2904             		and	#ACK
+fb98 : d0f9             		bne	Parrlp1	;still active
                         ;
                         ; Lower our ack, then we’re done.
                         ;
-fb99 : ad62e0           		lda	PIAREGB
-fb9c : 29fd             		and	#~PSTROBE
-fb9e : 8d62e0           		sta	PIAREGB
-fba1 : 68               		pla
-fba2 : 60               		rts
+fb9a : ad62e0           		lda	PIAREGB
+fb9d : 29fd             		and	#~PSTROBE
+fb9f : 8d62e0           		sta	PIAREGB
+fba2 : 68               		pla
+fba3 : 60               		rts
                         
                         		include "diskfunc.asm"
                         		list
@@ -2307,14 +2307,14 @@ fba2 : 60               		rts
                         ; Arduino code is working.  Returns C clear if all is
                         ; good, or C set if not.
                         ;
-fba3 : 202afb           DiskPing	jsr	xParSetWrite
-fba6 : a905             		lda	#PC_PING	;command
-fba8 : 2054fb           		jsr	xParWriteByte	;send to Arduino
-fbab : 203ffb           		jsr	xParSetRead
-fbae : 207ffb           		jsr	xParReadByte	;read their reply
-fbb1 : 202afb           DiskRetGood	jsr	xParSetWrite
-fbb4 : 18               		clc			;assume it's good
-fbb5 : 60               		rts
+fba4 : 202bfb           DiskPing	jsr	xParSetWrite
+fba7 : a905             		lda	#PC_PING	;command
+fba9 : 2055fb           		jsr	xParWriteByte	;send to Arduino
+fbac : 2040fb           		jsr	xParSetRead
+fbaf : 2080fb           		jsr	xParReadByte	;read their reply
+fbb2 : 202bfb           DiskRetGood	jsr	xParSetWrite
+fbb5 : 18               		clc			;assume it's good
+fbb6 : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   41
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2328,11 +2328,11 @@ fbb5 : 60               		rts
                         ; Returns with C clear on success.  If error, C is set
                         ; and A contains the error code.
                         ;
-fbb6 : 202afb           DiskDir		jsr	xParSetWrite
-fbb9 : a910             		lda	#PC_GET_DIR	;send command
-fbbb : 2054fb           		jsr	xParWriteByte
-fbbe : 18               		clc		;assume it works
-fbbf : 60               		rts
+fbb7 : 202bfb           DiskDir		jsr	xParSetWrite
+fbba : a910             		lda	#PC_GET_DIR	;send command
+fbbc : 2055fb           		jsr	xParWriteByte
+fbbf : 18               		clc		;assume it works
+fbc0 : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   42
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2346,37 +2346,37 @@ fbbf : 60               		rts
                         ; read and there are none left).  Else, C is clear
                         ; and X/Y point to the null at end of filename.
                         ;
-fbc0 : 86f1             DiskDirNext	stx	sptr+1
-fbc2 : 84f0             		sty	sptr
-fbc4 : 203ffb           		jsr	xParSetRead	;read results
-fbc7 : 207ffb           		jsr	xParReadByte	;get response code
-fbca : c983             		cmp	#PR_NAK		;error?
-fbcc : f01e             		beq	DDNErr
-fbce : c991             		cmp	#PR_DIR_END	;end?
-fbd0 : f01a             		beq	DDNErr
+fbc1 : 86f1             DiskDirNext	stx	sptr+1
+fbc3 : 84f0             		sty	sptr
+fbc5 : 2040fb           		jsr	xParSetRead	;read results
+fbc8 : 2080fb           		jsr	xParReadByte	;get response code
+fbcb : c983             		cmp	#PR_NAK		;error?
+fbcd : f01e             		beq	DDNErr
+fbcf : c991             		cmp	#PR_DIR_END	;end?
+fbd1 : f01a             		beq	DDNErr
                         ;
                         ; This contains a directory entry.
                         ;
-fbd2 : a000             		ldy	#0
-fbd4 : 207ffb           DDNloop		jsr	xParReadByte
-fbd7 : 91f0             		sta	(sptr),y
-fbd9 : c900             		cmp	#0	;end?
-fbdb : f006             		beq	DDNEnd
-fbdd : 2002f9           		jsr	INCPT
-fbe0 : 4cd4fb           		jmp	DDNloop
-fbe3 : 202afb           DDNEnd		jsr	xParSetWrite
-fbe6 : a6f1             		ldx	sptr+1
-fbe8 : a4f0             		ldy	sptr
-fbea : 18               		clc		;not end of files
-fbeb : 60               		rts
+fbd3 : a000             		ldy	#0
+fbd5 : 2080fb           DDNloop		jsr	xParReadByte
+fbd8 : 91f0             		sta	(sptr),y
+fbda : c900             		cmp	#0	;end?
+fbdc : f006             		beq	DDNEnd
+fbde : 2003f9           		jsr	INCPT
+fbe1 : 4cd5fb           		jmp	DDNloop
+fbe4 : 202bfb           DDNEnd		jsr	xParSetWrite
+fbe7 : a6f1             		ldx	sptr+1
+fbe9 : a4f0             		ldy	sptr
+fbeb : 18               		clc		;not end of files
+fbec : 60               		rts
                         ;
                         ; Error.  Set C and return.  This is not really
                         ; proper, since this implies a simple end of the
                         ; directory rather than an error.
                         ;
-fbec : 202afb           DDNErr		jsr	xParSetWrite
-fbef : 38               		sec
-fbf0 : 60               		rts
+fbed : 202bfb           DDNErr		jsr	xParSetWrite
+fbf0 : 38               		sec
+fbf1 : 60               		rts
                         		page
 AS65 Assembler for R6502 [1.42].                                     Page   43
 -------------------------------- ctmon65.asm ---------------------------------
@@ -2390,33 +2390,33 @@ fbf0 : 60               		rts
                         ;
                         ; Assumes write mode has been set.  Returns with it se
                         ;
-fbf1 : a916             DiskOpenRead	lda	#PC_READ_FILE
-fbf3 : 84f2             DiskOpen	sty	INL	;save ptr to filename
-fbf5 : 86f3             		stx	INH
-fbf7 : 48               		pha
-fbf8 : 202afb           		jsr	xParSetWrite
-fbfb : 68               		pla
-fbfc : 2054fb           		jsr	xParWriteByte
-fbff : a0ff             		ldy	#-1
-fc01 : c8               DiskOpenLoop	iny
-fc02 : b1f2             		lda	(INL),y
-fc04 : 2054fb           		jsr	xParWriteByte
-fc07 : b1f2             		lda	(INL),y
-fc09 : d0f6             		bne	DiskOpenLoop
-fc0b : 203ffb           		jsr	xParSetRead
-fc0e : 207ffb           		jsr	xParReadByte	;get response
-fc11 : c982             		cmp	#PR_ACK
-fc13 : d005             		bne	DiskOpenErr
-fc15 : 202afb           		jsr	xParSetWrite	;back to write mode
-fc18 : 18               		clc
-fc19 : 60               		rts
+fbf2 : a916             DiskOpenRead	lda	#PC_READ_FILE
+fbf4 : 84f2             DiskOpen	sty	INL	;save ptr to filename
+fbf6 : 86f3             		stx	INH
+fbf8 : 48               		pha
+fbf9 : 202bfb           		jsr	xParSetWrite
+fbfc : 68               		pla
+fbfd : 2055fb           		jsr	xParWriteByte
+fc00 : a0ff             		ldy	#-1
+fc02 : c8               DiskOpenLoop	iny
+fc03 : b1f2             		lda	(INL),y
+fc05 : 2055fb           		jsr	xParWriteByte
+fc08 : b1f2             		lda	(INL),y
+fc0a : d0f6             		bne	DiskOpenLoop
+fc0c : 2040fb           		jsr	xParSetRead
+fc0f : 2080fb           		jsr	xParReadByte	;get response
+fc12 : c982             		cmp	#PR_ACK
+fc14 : d005             		bne	DiskOpenErr
+fc16 : 202bfb           		jsr	xParSetWrite	;back to write mode
+fc19 : 18               		clc
+fc1a : 60               		rts
                         ;
                         ; Got an error.
                         ;
-fc1a : 207ffb           DiskOpenErr	jsr	xParReadByte	;get error code
-fc1d : 202afb           		jsr	xParSetWrite	;back to write mode
-fc20 : 38               		sec
-fc21 : 60               		rts
+fc1b : 2080fb           DiskOpenErr	jsr	xParReadByte	;get error code
+fc1e : 202bfb           		jsr	xParSetWrite	;back to write mode
+fc21 : 38               		sec
+fc22 : 60               		rts
                         ;=====================================================
                         ; This opens a file on the SD for writing.  On entry,
                         ; X (MSB) and Y (LSB) point to a null-terminated
@@ -2425,8 +2425,8 @@ fc21 : 60               		rts
                         ;
                         ; Assumes write mode has been set.  Returns with it se
                         ;
-fc22 : a91b             DiskOpenWrite	lda	#PC_WRITE_FILE
-fc24 : 4cf3fb           		jmp	DiskOpen	;jump into common code
+fc23 : a91b             DiskOpenWrite	lda	#PC_WRITE_FILE
+fc25 : 4cf4fb           		jmp	DiskOpen	;jump into common code
                         ;
                         ;=====================================================
                         ; On entry, A contains the number of bytes to read
@@ -2439,36 +2439,36 @@ fc24 : 4cf3fb           		jmp	DiskOpen	;jump into common code
                         ; Modifies A, X and Y.  Also modifies INL and INH
                         ; (00F8 and 00F9).
                         ;
-fc27 : 48               DiskRead	pha
-fc28 : 84f2             		sty	INL	;save ptr to buffer
-fc2a : 86f3             		stx	INH
-fc2c : a917             		lda	#PC_READ_BYTES
+fc28 : 48               DiskRead	pha
+fc29 : 84f2             		sty	INL	;save ptr to buffer
+fc2b : 86f3             		stx	INH
+fc2d : a917             		lda	#PC_READ_BYTES
 AS65 Assembler for R6502 [1.42].                                     Page   44
 -------------------------------- ctmon65.asm ---------------------------------
 
-fc2e : 2054fb           		jsr	xParWriteByte	;command
-fc31 : 68               		pla		;number of bytes to get
-fc32 : 2054fb           		jsr	xParWriteByte
-fc35 : 203ffb           		jsr	xParSetRead	;get ready for response
-fc38 : 207ffb           		jsr	xParReadByte	;assume PR_FILE_DATA
-fc3b : 207ffb           		jsr	xParReadByte	;length
-fc3e : 48               		pha
-fc3f : aa               		tax			;count
-fc40 : f011             		beq	DiskReadEof	;zero = EOF
-fc42 : a000             		ldy	#0	;offset
-fc44 : 207ffb           DiskReadLoop	jsr	xParReadByte
-fc47 : 91f2             		sta	(INL),y
-fc49 : c8               		iny		;next offset
-fc4a : ca               		dex
-fc4b : d0f7             		bne	DiskReadLoop
-fc4d : 202afb           		jsr	xParSetWrite
-fc50 : 68               		pla		;retrieve byte count
-fc51 : 18               DiskOk		clc	
-fc52 : 60               		rts
-fc53 : 202afb           DiskReadEof	jsr	xParSetWrite
-fc56 : 68               		pla
-fc57 : 38               		sec
-fc58 : 60               		rts
+fc2f : 2055fb           		jsr	xParWriteByte	;command
+fc32 : 68               		pla		;number of bytes to get
+fc33 : 2055fb           		jsr	xParWriteByte
+fc36 : 2040fb           		jsr	xParSetRead	;get ready for response
+fc39 : 2080fb           		jsr	xParReadByte	;assume PR_FILE_DATA
+fc3c : 2080fb           		jsr	xParReadByte	;length
+fc3f : 48               		pha
+fc40 : aa               		tax			;count
+fc41 : f011             		beq	DiskReadEof	;zero = EOF
+fc43 : a000             		ldy	#0	;offset
+fc45 : 2080fb           DiskReadLoop	jsr	xParReadByte
+fc48 : 91f2             		sta	(INL),y
+fc4a : c8               		iny		;next offset
+fc4b : ca               		dex
+fc4c : d0f7             		bne	DiskReadLoop
+fc4e : 202bfb           		jsr	xParSetWrite
+fc51 : 68               		pla		;retrieve byte count
+fc52 : 18               DiskOk		clc	
+fc53 : 60               		rts
+fc54 : 202bfb           DiskReadEof	jsr	xParSetWrite
+fc57 : 68               		pla
+fc58 : 38               		sec
+fc59 : 60               		rts
                         ;
                         ;=====================================================
                         ; On entry, A contains the number of bytes to write
@@ -2481,46 +2481,46 @@ fc58 : 60               		rts
                         ; Modifies A, X and Y.  Also modifies INL and INH
                         ; (00F8 and 00F9).
                         ;
-fc59 : c900             DiskWrite	cmp	#0
-fc5b : f0f4             		beq	DiskOk
-fc5d : 84f2             		sty	INL	;save ptr to filename
-fc5f : 86f3             		stx	INH
-fc61 : 48               		pha
-fc62 : a91c             		lda	#PC_WRITE_BYTES
-fc64 : 2054fb           		jsr	xParWriteByte	;command
-fc67 : 68               		pla		;number of bytes to write
-fc68 : 48               		pha		;save again
-fc69 : 2054fb           		jsr	xParWriteByte
-fc6c : 68               		pla
-fc6d : aa               		tax			;count
-fc6e : a000             		ldy	#0	;offset
-fc70 : b1f2             DiskWriteLoop	lda	(INL),y	;get next byte
-fc72 : 2054fb           		jsr	xParWriteByte
-fc75 : c8               		iny		;next offset
-fc76 : ca               		dex
-fc77 : d0f7             		bne	DiskWriteLoop
-fc79 : 203ffb           		jsr	xParSetRead ;read the status
-fc7c : 207ffb           		jsr	xParReadByte
-fc7f : c982             		cmp	#PR_ACK
-fc81 : f008             		beq	DiskOk1	;all good
-fc83 : 207ffb           		jsr	xParReadByte	;read error code
-fc86 : 202afb           		jsr	xParSetWrite 
-fc89 : 38               		sec	
-fc8a : 60               		rts
+fc5a : c900             DiskWrite	cmp	#0
+fc5c : f0f4             		beq	DiskOk
+fc5e : 84f2             		sty	INL	;save ptr to filename
+fc60 : 86f3             		stx	INH
+fc62 : 48               		pha
+fc63 : a91c             		lda	#PC_WRITE_BYTES
+fc65 : 2055fb           		jsr	xParWriteByte	;command
+fc68 : 68               		pla		;number of bytes to write
+fc69 : 48               		pha		;save again
+fc6a : 2055fb           		jsr	xParWriteByte
+fc6d : 68               		pla
+fc6e : aa               		tax			;count
+fc6f : a000             		ldy	#0	;offset
+fc71 : b1f2             DiskWriteLoop	lda	(INL),y	;get next byte
+fc73 : 2055fb           		jsr	xParWriteByte
+fc76 : c8               		iny		;next offset
+fc77 : ca               		dex
+fc78 : d0f7             		bne	DiskWriteLoop
+fc7a : 2040fb           		jsr	xParSetRead ;read the status
+fc7d : 2080fb           		jsr	xParReadByte
+fc80 : c982             		cmp	#PR_ACK
+fc82 : f008             		beq	DiskOk1	;all good
+fc84 : 2080fb           		jsr	xParReadByte	;read error code
+fc87 : 202bfb           		jsr	xParSetWrite 
+fc8a : 38               		sec	
+fc8b : 60               		rts
                         ;
 AS65 Assembler for R6502 [1.42].                                     Page   45
 -------------------------------- ctmon65.asm ---------------------------------
 
-fc8b : 202afb           DiskOk1		jsr	xParSetWrite
-fc8e : 18               		clc
-fc8f : 60               		rts
+fc8c : 202bfb           DiskOk1		jsr	xParSetWrite
+fc8f : 18               		clc
+fc90 : 60               		rts
                         ;
                         ;=====================================================
                         ; Call this to close any open file.  No parameters
                         ; and no return status.
                         ;
-fc90 : a915             DiskClose	lda	#PC_DONE
-fc92 : 4c54fb           		jmp	xParWriteByte
+fc91 : a915             DiskClose	lda	#PC_DONE
+fc93 : 4c55fb           		jmp	xParWriteByte
                         
                         
                         
@@ -2530,37 +2530,37 @@ fc92 : 4c54fb           		jmp	xParWriteByte
                         ; Handlers for the interrupts.  Basiclly just jump 
                         ; through the vectors and hope they are set up properl
                         ;
-fc95 : 6c02df           HandleNMI	jmp	(NMIvec)
-fc98 : 6c00df           HandleIRQ	jmp	(IRQvec)
+fc96 : 6c02df           HandleNMI	jmp	(NMIvec)
+fc99 : 6c00df           HandleIRQ	jmp	(IRQvec)
                         ;
                         ;*****************************************************
                         ; Default handler.  Save the state of the machine for
                         ; debugging.  This is taken from the KIM monitor SAVE
                         ; routine.
                         ;
-fc9b :                  DefaultNMI
-fc9b : 8d8edf           DefaultIRQ	sta	SaveA
-fc9e : 68               		pla
-fc9f : 8d93df           		sta	SaveC
-fca2 : 68               		pla
-fca3 : 8d91df           		sta	SavePC
-fca6 : 68               		pla
-fca7 : 8d92df           		sta	SavePC+1
-fcaa : 8c90df           		sty	SaveY
-fcad : 8e8fdf           		stx	SaveX
-fcb0 : ba               		tsx
-fcb1 : 8e94df           		stx	SaveSP
-fcb4 : 206af6           		jsr	DumpRegisters
-fcb7 : 20d6fa           		jsr	crlf
-fcba : 4cb4f0           		jmp	WARM
+fc9c :                  DefaultNMI
+fc9c : 8d8edf           DefaultIRQ	sta	SaveA
+fc9f : 68               		pla
+fca0 : 8d93df           		sta	SaveC
+fca3 : 68               		pla
+fca4 : 8d91df           		sta	SavePC
+fca7 : 68               		pla
+fca8 : 8d92df           		sta	SavePC+1
+fcab : 8c90df           		sty	SaveY
+fcae : 8e8fdf           		stx	SaveX
+fcb1 : ba               		tsx
+fcb2 : 8e94df           		stx	SaveSP
+fcb5 : 206bf6           		jsr	DumpRegisters
+fcb8 : 20d7fa           		jsr	crlf
+fcbb : 4cb4f0           		jmp	WARM
                         ;
                         ;*****************************************************
                         ; 6502 vectors
                         ;
 fffa =                  		org	$fffa
-fffa : 95fc             		dw	HandleNMI
+fffa : 96fc             		dw	HandleNMI
 fffc : 45f0             		dw	RESET
-fffe : 98fc             		dw	HandleIRQ
+fffe : 99fc             		dw	HandleIRQ
                         
                         
 No errors in pass 2.

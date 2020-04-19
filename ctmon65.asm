@@ -461,7 +461,7 @@ hexdump4	jsr	INCPT	;move to next address
 ;
 ; At the end but still need to dump the ASCII version.
 ;
-hexdumpend	;inx		;count last byte output
+hexdumpend	inx		;count last byte output
 		jsr	dumpbuffer
 		jsr	crlf
 ret1		jmp	prompt
