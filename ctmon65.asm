@@ -385,8 +385,8 @@ hexDump		jsr	putsil
 		db	"Hex dump ",0
 		jsr	getAddrRange
 		bcs	cmdRet
- jsr putsil
- db "Here A",CR,LF,0
+; jsr putsil
+; db "Here A",CR,LF,0
 		jsr	crlf
 ;
 ; Move start address to sptr but rounded down to the
@@ -399,8 +399,8 @@ hexDump		jsr	putsil
 		lda	SAL
 		and	#$f0	;force to 16 byte
 		sta	sptr
- jsr putsil
- db "Here B",CR,LF,0
+; jsr putsil
+; db "Here B",CR,LF,0
 ;
 ;-----------------------------------------------------
 ; This starts each line.  Set flag to indcate we're
@@ -410,13 +410,13 @@ hexdump1	jsr	crlf
 		lda	sptr+1
 		jsr	HexA	;print the address
 
- jsr putsil
- db "Here C",CR,LF,0
+; jsr putsil
+; db "Here C",CR,LF,0
 		lda	sptr
 		jsr	HexA
 		jsr	space2	;two spaces after address
- jsr putsil
- db "Here D",CR,LF,0
+; jsr putsil
+; db "Here D",CR,LF,0
 ;
 ;-----------------------------------------------------
 ; This loop gets the next byte, prints the value in
@@ -461,7 +461,7 @@ hexdump4	jsr	INCPT	;move to next address
 ;
 ; At the end but still need to dump the ASCII version.
 ;
-hexdumpend	inx		;count last byte output
+hexdumpend	;inx		;count last byte output
 		jsr	dumpbuffer
 		jsr	crlf
 ret1		jmp	prompt
